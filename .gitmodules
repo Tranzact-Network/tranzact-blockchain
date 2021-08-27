@@ -1,7 +1,7 @@
 [submodule "tranzact-blockchain-gui"]
 	path = tranzact-blockchain-gui
 	url = https://github.com/Tranzact-Network/tranzact-blockchain-gui.git
-	branch = pools
+	branch = tranzact
 [submodule "mozilla-ca"]
 	path = mozilla-ca
 	url = https://github.com/Tranzact-Network/mozilla-ca.git
