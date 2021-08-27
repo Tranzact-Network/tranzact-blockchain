@@ -6,9 +6,9 @@ from pathlib import Path
 import aiosqlite
 import pytest
 
-from chia.server.address_manager import AddressManager, ExtendedPeerInfo
-from chia.server.address_manager_store import AddressManagerStore
-from chia.types.peer_info import PeerInfo, TimestampedPeerInfo
+from tranzact.server.address_manager import AddressManager, ExtendedPeerInfo
+from tranzact.server.address_manager_store import AddressManagerStore
+from tranzact.types.peer_info import PeerInfo, TimestampedPeerInfo
 
 
 @pytest.fixture(scope="module")

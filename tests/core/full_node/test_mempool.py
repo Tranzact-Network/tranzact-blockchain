@@ -7,40 +7,40 @@ import pytest
 from clvm import SExp
 from clvm.EvalError import EvalError
 
-import chia.server.ws_connection as ws
+import tranzact.server.ws_connection as ws
 
-from chia.full_node.mempool import Mempool
-from chia.full_node.full_node_api import FullNodeAPI
-from chia.protocols import full_node_protocol
-from chia.simulator.simulator_protocol import FarmNewBlockProtocol
-from chia.types.announcement import Announcement
-from chia.types.blockchain_format.coin import Coin
-from chia.types.coin_spend import CoinSpend
-from chia.types.condition_opcodes import ConditionOpcode
-from chia.types.condition_with_args import ConditionWithArgs
-from chia.types.spend_bundle import SpendBundle
-from chia.types.mempool_item import MempoolItem
-from chia.util.clvm import int_to_bytes
-from chia.util.condition_tools import conditions_for_solution
-from chia.util.errors import Err, ValidationError
-from chia.util.ints import uint64
-from chia.util.hash import std_hash
-from chia.types.mempool_inclusion_status import MempoolInclusionStatus
-from chia.util.api_decorators import api_request, peer_required, bytes_required
-from chia.full_node.mempool_check_conditions import parse_condition_args, parse_condition, get_name_puzzle_conditions
-from chia.full_node.pending_tx_cache import PendingTxCache
+from tranzact.full_node.mempool import Mempool
+from tranzact.full_node.full_node_api import FullNodeAPI
+from tranzact.protocols import full_node_protocol
+from tranzact.simulator.simulator_protocol import FarmNewBlockProtocol
+from tranzact.types.announcement import Announcement
+from tranzact.types.blockchain_format.coin import Coin
+from tranzact.types.coin_spend import CoinSpend
+from tranzact.types.condition_opcodes import ConditionOpcode
+from tranzact.types.condition_with_args import ConditionWithArgs
+from tranzact.types.spend_bundle import SpendBundle
+from tranzact.types.mempool_item import MempoolItem
+from tranzact.util.clvm import int_to_bytes
+from tranzact.util.condition_tools import conditions_for_solution
+from tranzact.util.errors import Err, ValidationError
+from tranzact.util.ints import uint64
+from tranzact.util.hash import std_hash
+from tranzact.types.mempool_inclusion_status import MempoolInclusionStatus
+from tranzact.util.api_decorators import api_request, peer_required, bytes_required
+from tranzact.full_node.mempool_check_conditions import parse_condition_args, parse_condition, get_name_puzzle_conditions
+from tranzact.full_node.pending_tx_cache import PendingTxCache
 from blspy import G2Element
 
 from tests.connection_utils import connect_and_get_peer
 from tests.core.node_height import node_height_at_least
 from tests.setup_nodes import bt, setup_simulators_and_wallets
 from tests.time_out_assert import time_out_assert
-from chia.types.blockchain_format.program import Program, INFINITE_COST
-from chia.consensus.condition_costs import ConditionCost
-from chia.consensus.cost_calculator import NPCResult
-from chia.types.blockchain_format.program import SerializedProgram
+from tranzact.types.blockchain_format.program import Program, INFINITE_COST
+from tranzact.consensus.condition_costs import ConditionCost
+from tranzact.consensus.cost_calculator import NPCResult
+from tranzact.types.blockchain_format.program import SerializedProgram
 from clvm_tools import binutils
-from chia.types.generator_types import BlockGenerator
+from tranzact.types.generator_types import BlockGenerator
 from clvm.casts import int_from_bytes
 
 BURN_PUZZLE_HASH = b"0" * 32
@@ -192,7 +192,7 @@ class TestMempool:
 async def respond_transaction(
     node: FullNodeAPI,
     tx: full_node_protocol.RespondTransaction,
-    peer: ws.WSChiaConnection,
+    peer: ws.WSTranzactConnection,
     tx_bytes: bytes = b"",
     test: bool = False,
 ) -> Tuple[MempoolInclusionStatus, Optional[Err]]:

@@ -15,74 +15,74 @@ from typing import Callable, Dict, List, Optional, Tuple, Any
 from blspy import AugSchemeMPL, G1Element, G2Element, PrivateKey
 from chiabip158 import PyBIP158
 
-from chia.cmds.init_funcs import create_all_ssl, create_default_chia_config
-from chia.daemon.keychain_proxy import connect_to_keychain_and_validate, wrap_local_keychain
-from chia.full_node.bundle_tools import (
+from tranzact.cmds.init_funcs import create_all_ssl, create_default_tranzact_config
+from tranzact.daemon.keychain_proxy import connect_to_keychain_and_validate, wrap_local_keychain
+from tranzact.full_node.bundle_tools import (
     best_solution_generator_from_template,
     detect_potential_template_generator,
     simple_solution_generator,
 )
-from chia.util.errors import Err
-from chia.full_node.generator import setup_generator_args
-from chia.full_node.mempool_check_conditions import GENERATOR_MOD
-from chia.plotting.create_plots import create_plots, PlotKeys
-from chia.consensus.block_creation import unfinished_block_to_full_block
-from chia.consensus.block_record import BlockRecord
-from chia.consensus.block_rewards import calculate_base_farmer_reward, calculate_pool_reward
-from chia.consensus.blockchain_interface import BlockchainInterface
-from chia.consensus.coinbase import create_puzzlehash_for_pk, create_farmer_coin, create_pool_coin
-from chia.consensus.constants import ConsensusConstants
-from chia.consensus.default_constants import DEFAULT_CONSTANTS
-from chia.consensus.deficit import calculate_deficit
-from chia.consensus.full_block_to_block_record import block_to_block_record
-from chia.consensus.make_sub_epoch_summary import next_sub_epoch_summary
-from chia.consensus.cost_calculator import NPCResult, calculate_cost_of_program
-from chia.consensus.pot_iterations import (
+from tranzact.util.errors import Err
+from tranzact.full_node.generator import setup_generator_args
+from tranzact.full_node.mempool_check_conditions import GENERATOR_MOD
+from tranzact.plotting.create_plots import create_plots, PlotKeys
+from tranzact.consensus.block_creation import unfinished_block_to_full_block
+from tranzact.consensus.block_record import BlockRecord
+from tranzact.consensus.block_rewards import calculate_base_farmer_reward, calculate_pool_reward
+from tranzact.consensus.blockchain_interface import BlockchainInterface
+from tranzact.consensus.coinbase import create_puzzlehash_for_pk, create_farmer_coin, create_pool_coin
+from tranzact.consensus.constants import ConsensusConstants
+from tranzact.consensus.default_constants import DEFAULT_CONSTANTS
+from tranzact.consensus.deficit import calculate_deficit
+from tranzact.consensus.full_block_to_block_record import block_to_block_record
+from tranzact.consensus.make_sub_epoch_summary import next_sub_epoch_summary
+from tranzact.consensus.cost_calculator import NPCResult, calculate_cost_of_program
+from tranzact.consensus.pot_iterations import (
     calculate_ip_iters,
     calculate_iterations_quality,
     calculate_sp_interval_iters,
     calculate_sp_iters,
     is_overflow_block,
 )
-from chia.consensus.vdf_info_computation import get_signage_point_vdf_info
-from chia.full_node.signage_point import SignagePoint
-from chia.plotting.util import PlotInfo, PlotsRefreshParameter, PlotRefreshResult, parse_plot_info
-from chia.plotting.manager import PlotManager
-from chia.types.blockchain_format.classgroup import ClassgroupElement
-from chia.types.blockchain_format.coin import Coin, hash_coin_list
-from chia.types.blockchain_format.foliage import Foliage, FoliageBlockData, FoliageTransactionBlock, TransactionsInfo
-from chia.types.blockchain_format.pool_target import PoolTarget
-from chia.types.blockchain_format.proof_of_space import ProofOfSpace
-from chia.types.blockchain_format.reward_chain_block import RewardChainBlockUnfinished
-from chia.types.blockchain_format.sized_bytes import bytes32
-from chia.types.blockchain_format.slots import (
+from tranzact.consensus.vdf_info_computation import get_signage_point_vdf_info
+from tranzact.full_node.signage_point import SignagePoint
+from tranzact.plotting.util import PlotInfo, PlotsRefreshParameter, PlotRefreshResult, parse_plot_info
+from tranzact.plotting.manager import PlotManager
+from tranzact.types.blockchain_format.classgroup import ClassgroupElement
+from tranzact.types.blockchain_format.coin import Coin, hash_coin_list
+from tranzact.types.blockchain_format.foliage import Foliage, FoliageBlockData, FoliageTransactionBlock, TransactionsInfo
+from tranzact.types.blockchain_format.pool_target import PoolTarget
+from tranzact.types.blockchain_format.proof_of_space import ProofOfSpace
+from tranzact.types.blockchain_format.reward_chain_block import RewardChainBlockUnfinished
+from tranzact.types.blockchain_format.sized_bytes import bytes32
+from tranzact.types.blockchain_format.slots import (
     ChallengeChainSubSlot,
     InfusedChallengeChainSubSlot,
     RewardChainSubSlot,
     SubSlotProofs,
 )
-from chia.types.blockchain_format.sub_epoch_summary import SubEpochSummary
-from chia.types.blockchain_format.vdf import VDFInfo, VDFProof
-from chia.types.condition_with_args import ConditionWithArgs
-from chia.types.end_of_slot_bundle import EndOfSubSlotBundle
-from chia.types.full_block import FullBlock
-from chia.types.generator_types import BlockGenerator, CompressorArg
-from chia.types.spend_bundle import SpendBundle
-from chia.types.unfinished_block import UnfinishedBlock
-from chia.types.name_puzzle_condition import NPC
-from chia.util.bech32m import encode_puzzle_hash
-from chia.util.block_cache import BlockCache
-from chia.util.condition_tools import ConditionOpcode, conditions_by_opcode
-from chia.util.config import load_config, save_config
-from chia.util.hash import std_hash
-from chia.util.ints import uint8, uint16, uint32, uint64, uint128
-from chia.util.keychain import Keychain, bytes_to_mnemonic
-from chia.util.merkle_set import MerkleSet
-from chia.util.prev_transaction_block import get_prev_transaction_block
-from chia.util.path import mkdir
-from chia.util.vdf_prover import get_vdf_info_and_proof
+from tranzact.types.blockchain_format.sub_epoch_summary import SubEpochSummary
+from tranzact.types.blockchain_format.vdf import VDFInfo, VDFProof
+from tranzact.types.condition_with_args import ConditionWithArgs
+from tranzact.types.end_of_slot_bundle import EndOfSubSlotBundle
+from tranzact.types.full_block import FullBlock
+from tranzact.types.generator_types import BlockGenerator, CompressorArg
+from tranzact.types.spend_bundle import SpendBundle
+from tranzact.types.unfinished_block import UnfinishedBlock
+from tranzact.types.name_puzzle_condition import NPC
+from tranzact.util.bech32m import encode_puzzle_hash
+from tranzact.util.block_cache import BlockCache
+from tranzact.util.condition_tools import ConditionOpcode, conditions_by_opcode
+from tranzact.util.config import load_config, save_config
+from tranzact.util.hash import std_hash
+from tranzact.util.ints import uint8, uint16, uint32, uint64, uint128
+from tranzact.util.keychain import Keychain, bytes_to_mnemonic
+from tranzact.util.merkle_set import MerkleSet
+from tranzact.util.prev_transaction_block import get_prev_transaction_block
+from tranzact.util.path import mkdir
+from tranzact.util.vdf_prover import get_vdf_info_and_proof
 from tests.wallet_tools import WalletTool
-from chia.wallet.derive_keys import (
+from tranzact.wallet.derive_keys import (
     master_sk_to_farmer_sk,
     master_sk_to_local_sk,
     master_sk_to_pool_sk,
@@ -140,7 +140,7 @@ class BlockTools:
         self.root_path = root_path
         self.local_keychain = keychain
 
-        create_default_chia_config(root_path)
+        create_default_tranzact_config(root_path)
         create_all_ssl(root_path)
 
         self.local_sk_cache: Dict[bytes32, Tuple[PrivateKey, Any]] = {}
@@ -186,7 +186,7 @@ class BlockTools:
 
         self.farmer_pubkeys: List[G1Element] = [master_sk_to_farmer_sk(sk).get_g1() for sk in self.all_sks]
         if len(self.pool_pubkeys) == 0 or len(self.farmer_pubkeys) == 0:
-            raise RuntimeError("Keys not generated. Run `chia generate keys`")
+            raise RuntimeError("Keys not generated. Run `tranzact generate keys`")
 
     def change_config(self, new_config: Dict):
         self._config = new_config
@@ -1264,7 +1264,7 @@ def get_challenges(
 
 
 def get_plot_dir() -> Path:
-    cache_path = Path(os.path.expanduser(os.getenv("CHIA_ROOT", "~/.chia/"))) / "test-plots"
+    cache_path = Path(os.path.expanduser(os.getenv("TRANZACT_ROOT", "~/.tranzact/"))) / "test-plots"
     mkdir(cache_path)
     return cache_path
 
