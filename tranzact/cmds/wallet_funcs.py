@@ -123,13 +123,13 @@ def wallet_coin_unit(typ: WalletType, address_prefix: str) -> Tuple[str, int]:
         return "", units["colouredcoin"]
     if typ in [WalletType.STANDARD_WALLET, WalletType.POOLING_WALLET, WalletType.MULTI_SIG, WalletType.RATE_LIMITED]:
         return address_prefix, units["tranzact"]
-    return "", units["zacto"]
+    return "", units["toto"]
 
 
 def print_balance(amount: int, scale: int, address_prefix: str) -> str:
     ret = f"{amount/scale} {address_prefix} "
     if scale > 1:
-        ret += f"({amount} zacto)"
+        ret += f"({amount} toto)"
     return ret
 
 
