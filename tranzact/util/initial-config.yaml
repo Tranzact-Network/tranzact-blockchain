@@ -257,7 +257,7 @@ full_node:
       host: *self_hostname
       port: 8646
   introducer_peer:
-      host: *self_hostname  # Tranzact AWS introducer IPv4/IPv6
+      host: introducer.tranzact.cash  # Tranzact AWS introducer IPv4/IPv6
       port: 8655
   wallet_peer:
     host: *self_hostname
@@ -341,7 +341,7 @@ wallet:
   recent_peer_threshold: 6000
 
   introducer_peer:
-    host: *self_hostname # Tranzact AWS introducer IPv4/IPv6
+    host: introducer.tranzact.cash # Tranzact AWS introducer IPv4/IPv6
     port: 8655
 
   ssl:
