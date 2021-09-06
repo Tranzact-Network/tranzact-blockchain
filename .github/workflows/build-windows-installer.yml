@@ -1,3 +1,4 @@
+
 name: Windows Installer on Windows 10 and Python 3.9
 
 on:
@@ -33,7 +34,6 @@ jobs:
         id: npm-cache
         run: |
           echo "::set-output name=dir::$(npm config get cache)"
-
       - name: Cache npm
         uses: actions/cache@v2.1.6
         with:
@@ -41,12 +41,10 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-
       - name: Get pip cache dir
         id: pip-cache
         run: |
           echo "::set-output name=dir::$(pip cache dir)"
-
       - name: Cache pip
         uses: actions/cache@v2.1.6
         with:
@@ -54,7 +52,6 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-
       #  We can't upgrade to Python 3.8 until we have a miniupnpc binary
       - uses: actions/setup-python@v2
         name: Install Python 3.9
@@ -79,7 +76,6 @@ jobs:
           echo "$env:TRANZACT_INSTALLER_VERSION"
           echo "::set-output name=TRANZACT_INSTALLER_VERSION::$env:TRANZACT_INSTALLER_VERSION"
           deactivate
-
       - name: Build Windows installer with build_scripts\build_windows.ps1
         env:
           WIN_CODE_SIGN_PASS: ${{ secrets.WIN_CODE_SIGN_PASS }}
@@ -88,7 +84,6 @@ jobs:
           $env:path="C:\Program` Files` (x86)\Microsoft` Visual` Studio\2019\Enterprise\SDK\ScopeCppSDK\vc15\VC\bin\;$env:path"
           $env:path="C:\Program` Files` (x86)\Windows` Kits\10\App` Certification` Kit;$env:path"
           .\build_scripts\build_windows.ps1
-
       - name: Upload Windows exe's to artifacts
         uses: actions/upload-artifact@v2.2.2
         with:
