@@ -3,7 +3,7 @@ name: Test Install Scripts
 on:
   push:
     branches:
-      - main
+      - tranzact
     tags:
         - '**'
   pull_request:
