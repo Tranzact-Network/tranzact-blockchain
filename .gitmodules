@@ -2,3 +2,7 @@
 	path = mozilla-ca
 	url = https://github.com/Chia-Network/mozilla-ca.git
     branch = main
+[submodule "tranzact-blockchain-gui"]
+	path = tranzact-blockchain-gui
+	url = https://github.com/Tranzact-Network/tranzact-blockchain-gui.git
+	branch = tranzact
