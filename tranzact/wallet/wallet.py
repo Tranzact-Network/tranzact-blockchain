@@ -128,39 +128,6 @@ class Wallet:
         )
         return spendable
 
-    #tranzact specific start---
-
-    async def get_program_puzzle_hex(self, launcher_hash_b32, contract_hash_b32, delay = 604800) -> str:
-        derivation_paths = await self.wallet_state_manager.get_all_puzzle_hashes()
-        program_puzzle_hex: str = None
-        for puzzle_hash_b32 in derivation_paths:
-            #puzzle_hash: str = row[2]
-            #puzzle_hash_b32: bytes32 = bytes32(hexstr_to_bytes(puzzle_hash))
-            delay_u64: uint64 = uint64(delay)
-            puzzle = create_p2_singleton_puzzle(
-                SINGLETON_MOD_HASH,
-                launcher_hash_b32,
-                delay_u64,
-                puzzle_hash_b32
-            )
-
-            if contract_hash_b32 == puzzle.get_tree_hash():
-                program_puzzle_hex = bytes(SerializedProgram.from_program(puzzle)).hex()
-                break
-
-        return program_puzzle_hex
-
-     #tranzact specific end---
-
-    async def get_nft_records(self, contract_hash_b32, delay = 604800) -> Dict:
-        all_coins = await self.wallet_state_manager.coin_store.get_all_nft_coins(contract_hash_b32)
-        eligible_coins = await self.wallet_state_manager.coin_store.get_eligible_nft_coins(contract_hash_b32, delay)
-        coins:Dict = {
-            "all": all_coins,
-            "eligible": eligible_coins,
-        }
-        
-        return coins
 
     async def get_pending_change_balance(self) -> uint64:
         unconfirmed_tx = await self.wallet_state_manager.tx_store.get_unconfirmed_for_wallet(self.id())
@@ -514,3 +481,24 @@ class Wallet:
             self.wallet_state_manager.constants.MAX_BLOCK_COST_CLVM,
         )
         return spend_bundle
+
+    #tranzact added items below
+    async def get_program_puzzle_hex(self, launcher_hash_b32, contract_hash_b32, delay = 604800) -> str:
+        derivation_paths = await self.wallet_state_manager.get_all_puzzle_hashes()
+        program_puzzle_hex: str = None
+        for puzzle_hash_b32 in derivation_paths:
+            #puzzle_hash: str = row[2]
+            #puzzle_hash_b32: bytes32 = bytes32(hexstr_to_bytes(puzzle_hash))
+            delay_u64: uint64 = uint64(delay)
+            puzzle = create_p2_singleton_puzzle(
+                SINGLETON_MOD_HASH,
+                launcher_hash_b32,
+                delay_u64,
+                puzzle_hash_b32
+            )
+
+            if contract_hash_b32 == puzzle.get_tree_hash():
+                program_puzzle_hex = bytes(SerializedProgram.from_program(puzzle)).hex()
+                break
+
+        return program_puzzle_hex

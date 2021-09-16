@@ -36,6 +36,11 @@ from tranzact.wallet.wallet_node import WalletNode
 from tranzact.util.config import load_config
 from tranzact.consensus.coinbase import create_puzzlehash_for_pk
 
+#added for tranzact
+from tranzact.full_node.coin_store import CoinStore
+import json
+from os.path import exists
+
 # Timeout for response from wallet/full node for sending a transaction
 TIMEOUT = 30
 
@@ -112,6 +117,8 @@ class WalletRpcApi:
             "/pw_self_pool": self.pw_self_pool,
             "/pw_absorb_rewards": self.pw_absorb_rewards,
             "/pw_status": self.pw_status,
+            #Tranzact Specific
+            "/add_nft_address": self.add_nft_address,
         }
 
     async def _state_changed(self, *args) -> List[WsRpcMessage]:
@@ -684,6 +691,7 @@ class WalletRpcApi:
             "transactions": formatted_transactions,
             "wallet_id": wallet_id,
         }
+
 
     # this function is just here for backwards-compatibility. It will probably
     # be removed in the future
@@ -1264,4 +1272,47 @@ class WalletRpcApi:
         return {
             "state": state.to_json_dict(),
             "unconfirmed_transactions": unconfirmed_transactions,
+        }
+
+    #tranzact added items below
+    async def add_nft_address(self, request: Dict) -> Dict:
+        assert self.service.wallet_state_manager is not None
+        wallet_id = int(request["wallet_id"])
+        launcher_id = request["launcher_id"]
+        pool_contract_address = request["pool_contract_address"]
+        #datapath = path_from_root(self.service.root_path, self.service.config["database_path"])
+        nftfile:str = path_from_root(self.service.root_path, f"nft/nftdata.json")
+        file_exists = exists(nftfile)
+        nftdata = {}
+        
+        if file_exists:
+            f = open(nftfile, "r")
+            nftdata = json.load(f.read())
+            f.close()
+
+        if nftdata.has_key(wallet_id):
+            if nftdata[wallet_id].has_key(launcher_id):
+                raise ValueError(f"Launcher ID already exists for this wallet.")
+                
+        wallet = self.service.wallet_state_manager.wallets[wallet_id]
+        launcher_hash_b32: bytes32 = bytes32(hexstr_to_bytes(launcher_id))
+        contract_hash_b32: bytes32 = decode_puzzle_hash(pool_contract_address)
+        contract_hash_hex: str = contract_hash_b32.hex()
+
+        program_puzzle_hex = await wallet.get_program_puzzle_hex(launcher_hash_b32, contract_hash_b32)
+        if program_puzzle_hex is None:
+            raise ValueError(f"A valid puzzle program could not be created for the given arguments and the selected wallet.")
+
+        nftdata[wallet_id] = {}
+        nftdata[wallet_id][launcher_id] = {                
+            "contract_hash_hex" : contract_hash_hex,
+            "program_puzzle_hex": program_puzzle_hex
+        }
+            
+        with open(nftfile, "w") as f:
+            json.dump(nftdata, f)
+
+        return {
+            "success": 1,
+            "wallet_id": wallet_id,
         }

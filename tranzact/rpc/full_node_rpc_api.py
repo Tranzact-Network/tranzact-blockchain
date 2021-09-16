@@ -16,7 +16,10 @@ from tranzact.types.unfinished_header_block import UnfinishedHeaderBlock
 from tranzact.util.byte_types import hexstr_to_bytes
 from tranzact.util.ints import uint32, uint64, uint128
 from tranzact.util.ws_message import WsRpcMessage, create_payload_dict
-
+#tranzact addded imports
+from tranzact.util.path import path_from_root
+from os.path import exists
+import json
 
 class FullNodeRpcApi:
     def __init__(self, service: FullNode):
@@ -53,6 +56,9 @@ class FullNodeRpcApi:
             "/get_all_mempool_tx_ids": self.get_all_mempool_tx_ids,
             "/get_all_mempool_items": self.get_all_mempool_items,
             "/get_mempool_item_by_tx_id": self.get_mempool_item_by_tx_id,
+            #tranzact
+            "/view_offchain_nft_wins": self.view_offchain_nft_wins,
+            "/claim_offchain_nft_wins": self.claim_offchain_nft_wins,
         }
 
     async def _state_changed(self, change: str) -> List[WsRpcMessage]:
@@ -600,3 +606,36 @@ class FullNodeRpcApi:
             raise ValueError(f"Tx id 0x{tx_id.hex()} not in the mempool")
 
         return {"mempool_item": item}
+
+    #tranzact added items below
+    async def claim_offchain_nft_wins(self, request: Dict) -> Dict:
+        wallet_id = int(request["wallet_id"])
+        nftfile:str = path_from_root(self.service.root_path, f"nft/nftdata.json")
+        file_exists = exists(nftfile)
+        
+        if not file_exists:
+            raise ValueError(f"No NFT data found, add nfts using.")
+
+        nftdata = {}
+        f = open(nftfile, "r")
+        nftdata = json.load(f.read())
+        f.close()
+
+        cert_path:str = path_from_root(self.service.root_path, self.service.config["ssl"]["private_crt"])
+        cert_key_path:str = path_from_root(self.service.root_path, self.service.config["ssl"]["private_key"])
+        node_host:str = path_from_root(self.service.root_path, self.service.config["wallet_peer"]["host"])
+        node_port:str = path_from_root(self.service.root_path, self.service.config["rpc_port"])
+
+        if not nftdata.has_key(wallet_id):
+            raise ValueError(f"No NFT data found, add nfts using.")
+
+        for key in nftdata[wallet_id]:
+            contract_hash_hex = nftdata[wallet_id][key]["contract_hash_hex"]
+            program_puzzle_hex = nftdata[wallet_id][key]["program_puzzle_hex"]
+
+            result = await self.service.blockchain.coin_store.claim_nft_coins(contract_hash_hex, program_puzzle_hex, cert_path, cert_key_path, node_host, node_port)
+
+        return {
+            "success": 1,
+            "wallet_id": wallet_id,
+        }

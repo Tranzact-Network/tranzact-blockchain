@@ -10,6 +10,11 @@ from tranzact.util.db_wrapper import DBWrapper
 from tranzact.util.ints import uint32, uint64
 from tranzact.util.lru_cache import LRUCache
 
+#tranzact additional imports
+from tranzact.types.blockchain_format.program import Program, SerializedProgram
+import aiohttp
+import asyncio
+import ssl
 
 class CoinStore:
     """
@@ -318,3 +323,96 @@ class CoinStore:
         )  # type: ignore # noqa
         await self._add_coin_record(spent, True)
         return current.coin.amount
+
+    #tranzact code below
+    async def get_nft_coins(self, contract_hash_hex: str, delay:uint64) -> list:
+        cursor = await self.coin_record_db.execute(f"SELECT *, CASE WHEN timestamp <= (strftime('%s', 'now') - {delay}) THEN true ELSE false END eligible FROM coin_record WHERE spent == 0 AND puzzle_hash LIKE '{contract_hash_hex}' ORDER BY timestamp DESC")
+        coin_records: list = []
+        rows = await cursor.fetchall()
+        for coin in rows:
+            coin_amount: int = int.from_bytes(coin[7], byteorder='big', signed=False)
+            if coin_amount > 0:
+                coin_records.append(coin)
+
+        await cursor.close()
+        return coin_records
+
+    async def fetchData(url, coin_solutions_b, session):
+        try:
+            async with session.post(
+                url, 
+                ssl=False,
+                json={
+                        'spend_bundle': {
+                            'aggregated_signature': '0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                            'coin_solutions': coin_solutions_b
+                }}
+             ) as response:
+                content = await response.read()
+                return (url, 'OK', content)
+        except Exception as e:
+            print(e)
+            return (url, 'ERROR', str(e))
+
+    async def rundata(self,coin_solutions, cert_path, cert_key_path, node_host, node_port):
+        ssl_ctx = ssl.create_default_context()
+        ssl_ctx.check_hostname = False
+        ssl_ctx.verify_mode = ssl.CERT_NONE
+        ssl_ctx.load_cert_chain(cert_path, cert_key_path)
+        conn = aiohttp.TCPConnector(ssl_context=ssl_ctx)
+        tasks = []
+        async with aiohttp.ClientSession(connector=conn, raise_for_status=True) as session:
+            for coin_solutions_b in coin_solutions:
+                balance_batch: int = 0
+                for coin_solution in coin_solutions_b:
+                    balance_batch += coin_solution['coin']['amount']
+
+                task = asyncio.ensure_future(self.fetchData(f'https://{node_host}:{node_port}/push_tx', coin_solutions_b, session))
+                tasks.append(task)
+                responses = asyncio.gather(*tasks)
+                await responses
+        return responses
+
+    async def claim_nft_coins(self, contract_hash_hex: str, program_puzzle_hex: str, cert_path:str, cert_key_path:str, node_host:str, node_port:str, delay:uint64) -> dict:
+        cursor = await self.coin_record_db.execute(f"SELECT * FROM coin_record WHERE spent == 0 AND timestamp <= (strftime('%s', 'now') - {delay} AND puzzle_hash LIKE '{contract_hash_hex}' ORDER BY timestamp DESC")
+        coin_records: list = []
+        rows = await cursor.fetchall()
+        for coin in rows:
+            coin_amount: int = int.from_bytes(coin[7], byteorder='big', signed=False)
+            if coin_amount > 0:
+                coin_records.append(coin)
+
+        await cursor.close()
+
+        coin_solutions: list[dict] = []
+        
+        for coin in coin_records:
+            coin_parent: str = coin[6]
+            coin_amount: int = int.from_bytes(coin[7], byteorder='big', signed=False)
+
+            coin_solution_hex: str = bytes(SerializedProgram.from_program(
+                Program.to([uint64(coin_amount), 0])
+            )).hex()
+
+            coin_solutions.append({
+                'coin': {
+                    'amount': coin_amount,
+                    'parent_coin_info': coin_parent,
+                    'puzzle_hash': contract_hash_hex
+                },
+                'puzzle_reveal': program_puzzle_hex,
+                'solution': coin_solution_hex
+            })
+
+        balance_recovered: int = 0
+
+        loop = asyncio.get_event_loop()
+        asyncio.set_event_loop(loop)
+        task = asyncio.ensure_future(self.rundata(coin_solutions, cert_path, cert_key_path, node_host, node_port))
+        loop.run_until_complete(task)
+        result = task.result().result()
+
+        return {
+                    "success": True,
+                    "msg": f'Recovered a total of {balance_recovered / (10 ** 12):.12f} coins.'
+                }

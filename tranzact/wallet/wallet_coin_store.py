@@ -212,30 +212,6 @@ class WalletCoinStore:
 
         return [self.coin_record_from_row(row) for row in rows]
 
-    async def get_all_nft_coins(self, puzzle_hash: bytes32) -> list:
-        cursor = await self.db_connection.execute(f"SELECT * from coin_record WHERE spent == 0 AND puzzle_hash LIKE '{puzzle_hash.hex()}' ORDER BY timestamp DESC")
-        coin_records: list = []
-        rows = await cursor.fetchall()
-        for coin in rows:
-            coin_amount: int = int.from_bytes(coin[7], byteorder='big', signed=False)
-            if coin_amount > 0:
-                coin_records.append(coin)
-
-        await cursor.close()
-        return coin_records
-
-    async def get_eligible_nft_coins(self, puzzle_hash: bytes32, delay:uint64) -> list:
-        cursor = await self.db_connection.execute(f"SELECT * from coin_record WHERE spent == 0 AND timestamp <= (strftime('%s', 'now') - {delay}) AND puzzle_hash LIKE '{puzzle_hash.hex()}' ORDER BY timestamp DESC")
-        coin_records: list = []
-        rows = await cursor.fetchall()
-        for coin in rows:
-            coin_amount: int = int.from_bytes(coin[7], byteorder='big', signed=False)
-            if coin_amount > 0:
-                coin_records.append(coin)
-
-        await cursor.close()
-        return coin_records
-
     async def rollback_to_block(self, height: int):
         """
         Rolls back the blockchain to block_index. All blocks confirmed after this point
