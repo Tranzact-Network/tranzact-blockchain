@@ -118,7 +118,7 @@ class WalletRpcApi:
             "/pw_absorb_rewards": self.pw_absorb_rewards,
             "/pw_status": self.pw_status,
             #Tranzact Specific
-            "/add_nft_address": self.add_nft_address,
+            "/add_chia_pool_address": self.add_chia_pool_address,
         }
 
     async def _state_changed(self, *args) -> List[WsRpcMessage]:
@@ -1275,7 +1275,7 @@ class WalletRpcApi:
         }
 
     #tranzact added items below
-    async def add_nft_address(self, request: Dict) -> Dict:
+    async def add_chia_pool_address(self, request: Dict) -> Dict:
         assert self.service.wallet_state_manager is not None
         wallet_id = int(request["wallet_id"])
         launcher_id = request["launcher_id"]
@@ -1284,6 +1284,7 @@ class WalletRpcApi:
         nftfile:str = path_from_root(self.service.root_path, f"nft/nftdata.json")
         file_exists = exists(nftfile)
         nftdata = {}
+        wallet = self.service.wallet_state_manager.wallets[wallet_id]
         
         if file_exists:
             f = open(nftfile, "r")
@@ -1294,7 +1295,6 @@ class WalletRpcApi:
             if nftdata[wallet_id].has_key(launcher_id):
                 raise ValueError(f"Launcher ID already exists for this wallet.")
                 
-        wallet = self.service.wallet_state_manager.wallets[wallet_id]
         launcher_hash_b32: bytes32 = bytes32(hexstr_to_bytes(launcher_id))
         contract_hash_b32: bytes32 = decode_puzzle_hash(pool_contract_address)
         contract_hash_hex: str = contract_hash_b32.hex()

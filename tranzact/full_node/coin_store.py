@@ -325,7 +325,7 @@ class CoinStore:
         return current.coin.amount
 
     #tranzact code below
-    async def get_nft_coins(self, contract_hash_hex: str, delay:uint64) -> list:
+    async def get_nft_coins(self, contract_hash_hex: str, delay:int) -> list:
         cursor = await self.coin_record_db.execute(f"SELECT *, CASE WHEN timestamp <= (strftime('%s', 'now') - {delay}) THEN true ELSE false END eligible FROM coin_record WHERE spent == 0 AND puzzle_hash LIKE '{contract_hash_hex}' ORDER BY timestamp DESC")
         coin_records: list = []
         rows = await cursor.fetchall()
@@ -338,13 +338,16 @@ class CoinStore:
         return coin_records
 
     async def fetchData(url, coin_solutions_b, session):
+        pre:str = '0xc'
+        sig:str = pre.ljust(191, '0')
+        
         try:
             async with session.post(
                 url, 
                 ssl=False,
                 json={
                         'spend_bundle': {
-                            'aggregated_signature': '0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                            'aggregated_signature': sig,
                             'coin_solutions': coin_solutions_b
                 }}
              ) as response:
@@ -359,7 +362,7 @@ class CoinStore:
         ssl_ctx.check_hostname = False
         ssl_ctx.verify_mode = ssl.CERT_NONE
         ssl_ctx.load_cert_chain(cert_path, cert_key_path)
-        conn = aiohttp.TCPConnector(ssl_context=ssl_ctx)
+        conn = aiohttp.TCPConnector(ssl_context=ssl_ctx, limit=5)
         tasks = []
         async with aiohttp.ClientSession(connector=conn, raise_for_status=True) as session:
             for coin_solutions_b in coin_solutions:
@@ -373,7 +376,7 @@ class CoinStore:
                 await responses
         return responses
 
-    async def claim_nft_coins(self, contract_hash_hex: str, program_puzzle_hex: str, cert_path:str, cert_key_path:str, node_host:str, node_port:str, delay:uint64) -> dict:
+    async def claim_nft_coins(self, contract_hash_hex: str, program_puzzle_hex: str, cert_path:str, cert_key_path:str, node_host:str, node_port:str, delay:int) -> dict:
         cursor = await self.coin_record_db.execute(f"SELECT * FROM coin_record WHERE spent == 0 AND timestamp <= (strftime('%s', 'now') - {delay} AND puzzle_hash LIKE '{contract_hash_hex}' ORDER BY timestamp DESC")
         coin_records: list = []
         rows = await cursor.fetchall()

@@ -57,8 +57,8 @@ class FullNodeRpcApi:
             "/get_all_mempool_items": self.get_all_mempool_items,
             "/get_mempool_item_by_tx_id": self.get_mempool_item_by_tx_id,
             #tranzact
-            "/view_offchain_nft_wins": self.view_offchain_nft_wins,
-            "/claim_offchain_nft_wins": self.claim_offchain_nft_wins,
+            "/view_chia_nft_wins": self.view_chia_nft_wins,
+            "/claim_chia_nft_wins": self.claim_chia_nft_wins,
         }
 
     async def _state_changed(self, change: str) -> List[WsRpcMessage]:
@@ -607,8 +607,36 @@ class FullNodeRpcApi:
 
         return {"mempool_item": item}
 
-    #tranzact added items below
-    async def claim_offchain_nft_wins(self, request: Dict) -> Dict:
+   #tranzact code below
+    async def view_chia_nft_wins(self, request: Dict) -> Dict:
+        wallet_id = int(request["wallet_id"])
+        nftfile:str = path_from_root(self.service.root_path, f"nft/nftdata.json")
+        file_exists = exists(nftfile)
+        
+        if not file_exists:
+            raise ValueError(f"No NFT data found, add nfts using.")
+
+        nftdata = {}
+        f = open(nftfile, "r")
+        nftdata = json.load(f.read())
+        f.close()
+
+        if not nftdata.has_key(wallet_id):
+            raise ValueError(f'No Off Fork NFT data found, add Off Fork NFTs using the GUI or console command "tranzact wallet addnft".')
+
+        for key in nftdata[wallet_id]:
+            contract_hash_hex = nftdata[wallet_id][key]["contract_hash_hex"]
+            delay:int = 604800
+
+            result = await self.service.blockchain.coin_store.get_nft_coins(contract_hash_hex, delay)
+
+        return {
+            "success": 1,
+            "wallet_id": wallet_id,
+        }
+
+
+    async def claim_chia_nft_wins(self, request: Dict) -> Dict:
         wallet_id = int(request["wallet_id"])
         nftfile:str = path_from_root(self.service.root_path, f"nft/nftdata.json")
         file_exists = exists(nftfile)
@@ -625,6 +653,7 @@ class FullNodeRpcApi:
         cert_key_path:str = path_from_root(self.service.root_path, self.service.config["ssl"]["private_key"])
         node_host:str = path_from_root(self.service.root_path, self.service.config["wallet_peer"]["host"])
         node_port:str = path_from_root(self.service.root_path, self.service.config["rpc_port"])
+        delay:int = 604800
 
         if not nftdata.has_key(wallet_id):
             raise ValueError(f"No NFT data found, add nfts using.")
@@ -633,7 +662,7 @@ class FullNodeRpcApi:
             contract_hash_hex = nftdata[wallet_id][key]["contract_hash_hex"]
             program_puzzle_hex = nftdata[wallet_id][key]["program_puzzle_hex"]
 
-            result = await self.service.blockchain.coin_store.claim_nft_coins(contract_hash_hex, program_puzzle_hex, cert_path, cert_key_path, node_host, node_port)
+            result = await self.service.blockchain.coin_store.claim_nft_coins(contract_hash_hex, program_puzzle_hex, cert_path, cert_key_path, node_host, node_port, delay)
 
         return {
             "success": 1,
