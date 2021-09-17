@@ -27,7 +27,7 @@ from tranzact.util.config import load_config
 from tranzact.util.json_util import dict_to_json_str
 from tranzact.util.keychain import (
     Keychain,
-    KeyringCurrentPassphaseIsInvalid,
+    KeyringCurrentPassphraseIsInvalid,
     KeyringRequiresMigration,
     supports_keyring_passphrase,
 )
@@ -399,7 +399,7 @@ class WebSocketServer:
             Keychain.set_master_passphrase(current_passphrase, new_passphrase, allow_migration=False)
         except KeyringRequiresMigration:
             error = "keyring requires migration"
-        except KeyringCurrentPassphaseIsInvalid:
+        except KeyringCurrentPassphraseIsInvalid:
             error = "current passphrase is invalid"
         except Exception as e:
             tb = traceback.format_exc()
@@ -424,7 +424,7 @@ class WebSocketServer:
 
         try:
             Keychain.remove_master_passphrase(current_passphrase)
-        except KeyringCurrentPassphaseIsInvalid:
+        except KeyringCurrentPassphraseIsInvalid:
             error = "current passphrase is invalid"
         except Exception as e:
             tb = traceback.format_exc()
