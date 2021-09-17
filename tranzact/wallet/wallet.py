@@ -4,12 +4,6 @@ from typing import Any, Dict, List, Optional, Set
 
 from blspy import G1Element
 
-from tranzact.util.byte_types import (
-    SINGLETON_MOD_HASH,
-    create_p2_singleton_puzzle
-)
-
-from tranzact.util.byte_types import hexstr_to_bytes
 from tranzact.consensus.cost_calculator import calculate_cost_of_program, NPCResult
 from tranzact.full_node.bundle_tools import simple_solution_generator
 from tranzact.full_node.mempool_check_conditions import get_name_puzzle_conditions
@@ -47,6 +41,14 @@ from tranzact.wallet.util.wallet_types import WalletType
 from tranzact.wallet.wallet_coin_record import WalletCoinRecord
 from tranzact.wallet.wallet_info import WalletInfo
 
+####tranzact imports start ####
+from tranzact.pools.pool_puzzles import (
+    SINGLETON_MOD_HASH,
+    create_p2_singleton_puzzle
+)
+from tranzact.wallet.wallet_puzzle_store import WalletPuzzleStore
+from tranzact.util.byte_types import hexstr_to_bytes
+####tranzact imports end ####
 
 class Wallet:
     wallet_state_manager: Any
@@ -482,9 +484,11 @@ class Wallet:
         )
         return spend_bundle
 
-    #tranzact added items below
-    async def get_program_puzzle_hex(self, launcher_hash_b32, contract_hash_b32, delay = 604800) -> str:
-        derivation_paths = await self.wallet_state_manager.get_all_puzzle_hashes()
+####tranzact additions below ####
+
+    async def get_program_puzzle_hex(self, launcher_hash_b32:bytes32, contract_hash_b32:bytes32, delay:int) -> str:
+
+        derivation_paths = await self.wallet_state_manager.puzzle_store.get_all_puzzle_hashes()
         program_puzzle_hex: str = None
         for puzzle_hash_b32 in derivation_paths:
             #puzzle_hash: str = row[2]

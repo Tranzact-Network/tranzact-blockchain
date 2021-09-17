@@ -165,10 +165,19 @@ def delete_unconfirmed_transactions_cmd(wallet_rpc_port: Optional[int], id, fing
     asyncio.run(execute_with_wallet(wallet_rpc_port, fingerprint, extra_params, delete_unconfirmed_transactions))
 
 
-#tranzact additions below
+####tranzact additions below ####
 @wallet_cmd.command(
     "add_chia_pool_address", short_help="Creates an entry for Chia pool plots tied to a Tranzact wallet so you can track and claim full rewards on our chain."
 )
+@click.option(
+    "-wp",
+    "--wallet-rpc-port",
+    help="Set the port where the Wallet is hosting the RPC interface. See the rpc_port under wallet in config.yaml",
+    type=int,
+    default=None,
+)
+@click.option("-i", "--id", help="Id of the wallet to use", type=int, default=1, show_default=True, required=True)
+@click.option("-f", "--fingerprint", help="Set the fingerprint to specify which wallet to use", type=int)
 @click.option(
     "-l", 
     "--launcher_id", 
@@ -183,11 +192,9 @@ def delete_unconfirmed_transactions_cmd(wallet_rpc_port: Optional[int], id, fing
     type=str,
     required=True
     )
-@click.option("-i", "--id", help="Id of the wallet to use", type=int, default=1, show_default=True, required=True)
-@click.option("-f", "--fingerprint", help="Set the fingerprint to specify which wallet to use", type=int)
-def add_chia_pool_address_cmd(launcher_id:str, pool_contract_address:str,  id, fingerprint: int) -> None:
-    extra_params = {"id": id}
+def add_chia_pool_address_cmd(wallet_rpc_port: Optional[int], id, fingerprint: int, launcher_id:str, pool_contract_address:str) -> None:
+    extra_params = {"id": id, "launcher_id": launcher_id, "pool_contract_address": pool_contract_address}
     import asyncio
     from .wallet_funcs import execute_with_wallet, add_chia_pool_address
 
-    asyncio.run(execute_with_wallet(launcher_id, pool_contract_address, fingerprint, extra_params, add_chia_pool_address))
+    asyncio.run(execute_with_wallet(wallet_rpc_port, fingerprint, extra_params, add_chia_pool_address))

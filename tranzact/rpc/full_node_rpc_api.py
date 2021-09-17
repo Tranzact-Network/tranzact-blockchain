@@ -16,10 +16,12 @@ from tranzact.types.unfinished_header_block import UnfinishedHeaderBlock
 from tranzact.util.byte_types import hexstr_to_bytes
 from tranzact.util.ints import uint32, uint64, uint128
 from tranzact.util.ws_message import WsRpcMessage, create_payload_dict
-#tranzact addded imports
+
+####tranzact imports start ####
 from tranzact.util.path import path_from_root
 from os.path import exists
 import json
+####tranzact imports end ####
 
 class FullNodeRpcApi:
     def __init__(self, service: FullNode):
@@ -56,9 +58,11 @@ class FullNodeRpcApi:
             "/get_all_mempool_tx_ids": self.get_all_mempool_tx_ids,
             "/get_all_mempool_items": self.get_all_mempool_items,
             "/get_mempool_item_by_tx_id": self.get_mempool_item_by_tx_id,
-            #tranzact
+
+            ####tranzact functions start ####
             "/view_chia_nft_wins": self.view_chia_nft_wins,
             "/claim_chia_nft_wins": self.claim_chia_nft_wins,
+            ####tranzact functions end ####
         }
 
     async def _state_changed(self, change: str) -> List[WsRpcMessage]:
@@ -607,7 +611,7 @@ class FullNodeRpcApi:
 
         return {"mempool_item": item}
 
-   #tranzact code below
+   ####tranzact additions below ####
     async def view_chia_nft_wins(self, request: Dict) -> Dict:
         wallet_id = int(request["wallet_id"])
         nftfile:str = path_from_root(self.service.root_path, f"nft/nftdata.json")
@@ -621,7 +625,7 @@ class FullNodeRpcApi:
         nftdata = json.load(f.read())
         f.close()
 
-        if not nftdata.has_key(wallet_id):
+        if not wallet_id in nftdata:
             raise ValueError(f'No Off Fork NFT data found, add Off Fork NFTs using the GUI or console command "tranzact wallet addnft".')
 
         for key in nftdata[wallet_id]:
@@ -655,7 +659,7 @@ class FullNodeRpcApi:
         node_port:str = path_from_root(self.service.root_path, self.service.config["rpc_port"])
         delay:int = 604800
 
-        if not nftdata.has_key(wallet_id):
+        if not wallet_id in nftdata:
             raise ValueError(f"No NFT data found, add nfts using.")
 
         for key in nftdata[wallet_id]:

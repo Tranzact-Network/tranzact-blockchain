@@ -254,3 +254,12 @@ async def execute_with_wallet(
             print(f"Exception from 'wallet' {e}")
     wallet_client.close()
     await wallet_client.await_closed()
+
+####tranzact additions below ####
+async def add_chia_pool_address(args: dict, wallet_client: WalletRpcClient, fingerprint: int) -> None:
+    wallet_id = args["id"]
+    launcher_id = args["launcher_id"]
+    pool_contract_address = args["pool_contract_address"]
+    fingerprint = fingerprint
+    await wallet_client.add_chia_pool_address(wallet_id, launcher_id, pool_contract_address)
+    print(f"Successfully added Chia pool address with launcher id {launcher_id} for wallet id {wallet_id} on key {fingerprint}")

@@ -232,3 +232,15 @@ class WalletRpcClient(RpcClient):
             PoolWalletInfo.from_json_dict(json_dict["state"]),
             [TransactionRecord.from_json_dict(tr) for tr in json_dict["unconfirmed_transactions"]],
         )
+
+####tranzact additions below ####
+    async def add_chia_pool_address(self, wallet_id: str, launcher_id:str, pool_contract_address:str) -> None:
+        await self.fetch(
+            "add_chia_pool_address",
+            {
+                "wallet_id": wallet_id,
+                "launcher_id":launcher_id,
+                "pool_contract_address":pool_contract_address
+            },
+        )
+        return None
