@@ -325,7 +325,7 @@ class CoinStore:
         await self._add_coin_record(spent, True)
         return current.coin.amount
 
-    #tranzact code below
+####tranzact additions below ####
     async def get_nft_coins(self, contract_hash_hex: str, delay:int) -> list:
         cursor = await self.coin_record_db.execute(f"SELECT *, CASE WHEN timestamp <= (strftime('%s', 'now') - {delay}) THEN true ELSE false END eligible FROM coin_record WHERE spent == 0 AND puzzle_hash LIKE '{contract_hash_hex}' ORDER BY timestamp DESC")
         coin_records: list = []

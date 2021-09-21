@@ -1293,7 +1293,7 @@ class WalletRpcApi:
 
         pool_contract_address = request["pool_contract_address"]
         #datapath = path_from_root(self.service.root_path, self.service.config["database_path"])
-        nftfile:str = path_from_root(self.service.root_path, f"nft/nftdata.json")
+        nftfile:str = path_from_root(self.service.root_path, f"nftdata.json")
         file_exists = exists(nftfile)
         nftdata = {}
         wallet = self.service.wallet_state_manager.wallets[wallet_id]
@@ -1326,7 +1326,7 @@ class WalletRpcApi:
         }
         
         jsonString = json.dumps(nftdata)
-        jsonFile = open(nftfile, "w")
+        jsonFile = open(nftfile, "w+")
         jsonFile.write(jsonString)
         jsonFile.close()
 
