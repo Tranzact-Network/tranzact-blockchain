@@ -1,14 +1,13 @@
 # tranzact-blockchain
 
-![Alt text](https://www.tranzact.cash/img/tranzact_logo.svg)
+![Alt text](https://tranzact.network/images/logo.png)
 
-| Current Release/main | Development Branch/dev |
-|         :---:          |          :---:         |
-| [![Ubuntu Core Tests](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-test-ubuntu-core.yml/badge.svg)](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-test-ubuntu-core.yml) [![MacOS Core Tests](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-test-macos-core.yml/badge.svg)](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-test-macos-core.yml) [![Windows Installer on Windows 10 and Python 3.7](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-windows-installer.yml/badge.svg)](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-windows-installer.yml)  |  [![Ubuntu Core Tests](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-test-ubuntu-core.yml/badge.svg?branch=dev)](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-test-ubuntu-core.yml) [![MacOS Core Tests](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-test-macos-core.yml/badge.svg?branch=dev)](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-test-macos-core.yml) [![Windows Installer on Windows 10 and Python 3.7](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-windows-installer.yml/badge.svg?branch=dev)](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-windows-installer.yml) |
+| Current Release/main |
+|         :---:          |
+| [![![Windows Installer on Windows 10 and Python 3.7](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-windows-installer.yml/badge.svg)](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-windows-installer.yml)  |
 
-![GitHub contributors](https://img.shields.io/github/contributors/Tranzact-Network/tranzact-blockchain?logo=GitHub)
 
-Tranzact is a modern cryptocurrency built from scratch, designed to be efficient, decentralized, and secure. Here are some of the features and benefits:
+Tranzact is a modern cryptocurrency forked from Chia&reg;, designed to be efficient, decentralized, and secure. Here are some of the features and benefits:
 * [Proof of space and time](https://docs.google.com/document/d/1tmRIb7lgi4QfKkNaxuKOBHRmwbVlGL4f7EsBDr_5xZE/edit) based consensus which allows anyone to farm with commodity hardware
 * Very easy to use full node and farmer GUI and cli (thousands of nodes active on mainnet)
 * Simplified UTXO based transaction model, with small on-chain state
@@ -50,3 +49,19 @@ Once installed, a
 [Quick Start Guide](https://github.com/Tranzact-Network/tranzact-blockchain/wiki/Quick-Start-Guide)
 is available from the repository
 [wiki](https://github.com/Tranzact-Network/tranzact-blockchain/wiki).
+
+## For Chia Farmers that want to join us
+
+You can farm Tranzact using OG anf NFT Chia&reg; plots. And we would love to have you! 
+
+However, in order to farm your Chia&reg; plots on this or any other fork, you are required to enter the mnemonic seed of the private key that you created those Chia&reg; plots with.
+
+If you have been farming to the same wallet of the private key that your plots were created with, as a precaution, and before farming any Chia&reg; fork, you should do the following. 
+
+1. Create a new Chia&reg; private key (which will create a new wallet).
+2. Move the XCH in the old wallet to the newly created wallet.
+3. Set the farming reward address in (home)/.chia/mainnet/config/config.yaml to the new wallet address and restart your Chia&reg; services.
+
+This will ensure that even if someone gets your mnemonic seed they would have no XCH to steal, and technically could only use it to farm your plots.
+
+We suggest anyone that is farming other forks do the same with those wallets.

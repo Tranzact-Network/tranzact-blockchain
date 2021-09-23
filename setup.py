@@ -45,8 +45,8 @@ dev_dependencies = [
 
 kwargs = dict(
     name="tranzact-blockchain",
-    author="Mariano Sorgente",
-    author_email="mariano@tranzact.cash",
+    author="Archiviz",
+    author_email="tranzact.network@gmail.com",
     description="Tranzact blockchain full node, farmer, timelord, and wallet.",
     url="https://tranzact.cash/",
     license="Apache License",
