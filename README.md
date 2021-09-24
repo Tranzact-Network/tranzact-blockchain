@@ -2,9 +2,9 @@
 
 ![Alt text](https://tranzact.network/images/logo.png)
 
-| Current Release/main |
-|         :---:          |
-| [![![Windows Installer on Windows 10 and Python 3.7](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-windows-installer.yml/badge.svg)](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-windows-installer.yml)  |
+Current Release/main 
+        :---:          
+[![Windows Installer on Windows 10 and Python 3.7](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-windows-installer.yml/badge.svg)](https://github.com/Tranzact-Network/tranzact-blockchain/actions/workflows/build-windows-installer.yml)  
 
 
 Tranzact is a modern cryptocurrency forked from Chia&reg;, designed to be efficient, decentralized, and secure. Here are some of the features and benefits:
@@ -65,3 +65,7 @@ If you have been farming to the same wallet of the private key that your plots w
 This will ensure that even if someone gets your mnemonic seed they would have no XCH to steal, and technically could only use it to farm your plots.
 
 We suggest anyone that is farming other forks do the same with those wallets.
+
+We support Off Chain NFT plots in the same manner as Flax and other forks, in that if you win a block with an NFT plot, you will get the .25 reward immediately.  The .75 remaining reward will be able to be claimed after a 7 day waiting period.  This waiting period is baked into the pooling contract.
+
+We are currently working on a GUI and CLI addition that will show pending and claimable rewards from NFT plots.  Until that is complete we will most likely be using the [alltheblocks.net](https://alltheblocks.net/) online NFT claiming service.
