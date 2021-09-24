@@ -30,6 +30,7 @@ from tranzact.util.keychain import (
     KeyringCurrentPassphraseIsInvalid,
     KeyringRequiresMigration,
     supports_keyring_passphrase,
+    supports_os_passphrase_storage,
 )
 from tranzact.util.path import mkdir
 from tranzact.util.service_groups import validate_service
@@ -334,13 +335,15 @@ class WebSocketServer:
 
     async def keyring_status(self) -> Dict[str, Any]:
         passphrase_support_enabled: bool = supports_keyring_passphrase()
-        user_passphrase_is_set: bool = not using_default_passphrase()
+        can_save_passphrase: bool = supports_os_passphrase_storage()
+        user_passphrase_is_set: bool = Keychain.has_master_passphrase() and not using_default_passphrase()
         locked: bool = Keychain.is_keyring_locked()
         needs_migration: bool = Keychain.needs_migration()
         response: Dict[str, Any] = {
             "success": True,
             "is_keyring_locked": locked,
             "passphrase_support_enabled": passphrase_support_enabled,
+            "can_save_passphrase": can_save_passphrase,
             "user_passphrase_is_set": user_passphrase_is_set,
             "needs_migration": needs_migration,
         }
