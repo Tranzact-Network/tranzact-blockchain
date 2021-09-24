@@ -22,6 +22,10 @@ def create_default_tranzact_config(root_path: Path, filenames=["config.yaml"]) -
         mkdir(path.parent)
         with open(path, "w") as f:
             f.write(default_config_file_data)
+        try:
+            os.replace(str(tmp_path), str(path))
+        except PermissionError:
+            shutil.move(str(tmp_path), str(path))
 
 
 def config_path_for_filename(root_path: Path, filename: Union[str, Path]) -> Path:
@@ -35,7 +39,10 @@ def save_config(root_path: Path, filename: Union[str, Path], config_data: Any):
     path = config_path_for_filename(root_path, filename)
     with open(path.with_suffix("." + str(os.getpid())), "w") as f:
         yaml.safe_dump(config_data, f)
-    shutil.move(str(path.with_suffix("." + str(os.getpid()))), path)
+    try:
+        os.replace(str(tmp_path), path)
+    except PermissionError:
+        shutil.move(str(tmp_path), str(path))
 
 
 def load_config(
