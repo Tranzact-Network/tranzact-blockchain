@@ -91,9 +91,9 @@ def configure(
     if testnet is not None:
         if testnet == "true" or testnet == "t":
             print("Setting Testnet")
-            testnet_port = "58655"
+            testnet_port = "38655"
             testnet_introducer = "beta1_introducer.tranzact.cash"
-            testnet_dns_introducer = "dns-introducer-testnet7.tranzact.cash"
+            testnet_dns_introducer = "dns-introducer-testnet0.tranzact.cash"
             testnet = "testnet7"
             config["full_node"]["port"] = int(testnet_port)
             config["full_node"]["introducer_peer"]["port"] = int(testnet_port)

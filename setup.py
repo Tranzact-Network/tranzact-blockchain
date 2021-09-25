@@ -1,12 +1,12 @@
 from setuptools import setup
 
 dependencies = [
-    "blspy==1.0.5",  # Signature library
+    "blspy==1.0.6",  # Signature library
     "chiavdf==1.0.3",  # timelord and vdf verification
     "chiabip158==1.0",  # bip158-style wallet filters
     "chiapos==1.0.4",  # proof of space
     "clvm==0.9.7",
-    "clvm_rs==0.1.10",
+    "clvm_rs==0.1.11",
     "clvm_tools==0.4.3",
     "aiohttp==3.7.4",  # HTTP server for full node rpc
     "aiosqlite==0.17.0",  # asyncio wrapper for sqlite, to store blocks
@@ -45,8 +45,8 @@ dev_dependencies = [
 
 kwargs = dict(
     name="tranzact-blockchain",
-    author="Mariano Sorgente",
-    author_email="mariano@tranzact.cash",
+    author="Archiviz",
+    author_email="tranzact.network@gmail.com",
     description="Tranzact blockchain full node, farmer, timelord, and wallet.",
     url="https://tranzact.cash/",
     license="Apache License",

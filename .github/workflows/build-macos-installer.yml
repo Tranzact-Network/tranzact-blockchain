@@ -4,8 +4,9 @@ on:
   push:
     branches:
       - tranzact
+      - tranzact-upgrade
     tags:
-        - '**'
+      - '**'
   pull_request:
     branches:
       - '**'
