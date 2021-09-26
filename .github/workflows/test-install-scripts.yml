@@ -3,9 +3,10 @@ name: Test Install Scripts
 on:
   push:
     branches:
-      - main
+      - tranzact
+      - tranzact-upgrade
     tags:
-        - '**'
+      - '**'
   pull_request:
     branches:
       - '**'

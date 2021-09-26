@@ -59,19 +59,20 @@ logging: &logging
 
 harvester:
   # The harvester server (if run) will run on this port
-  port: 8648
+  port: 8651
   farmer_peer:
     host: *self_hostname
-    port: 8647
+    port: 8652
 
   # If True, starts an RPC server at the following port
   start_rpc_server: True
-  rpc_port: 8660
+  rpc_port: 8653
   num_threads: 30
   plots_refresh_parameter:
     interval_seconds: 120 # The interval in seconds to refresh the plot file manager
-    batch_size: 30 # How many plot files the harvester processes before it waits batch_sleep_milliseconds
-    batch_sleep_milliseconds: 10 # Milliseconds the harvester sleeps between batch processing
+    retry_invalid_seconds: 1200 # How long to wait before re-trying plots which failed to load
+    batch_size: 300 # How many plot files the harvester processes before it waits batch_sleep_milliseconds
+    batch_sleep_milliseconds: 1 # Milliseconds the harvester sleeps between batch processing
 
 
   # If True use parallel reads in chiapos
@@ -106,14 +107,14 @@ pool:
 
 farmer:
   # The farmer server (if run) will run on this port
-  port: 8647
+  port: 8652
   # The farmer will attempt to connect to this full node and harvester
   full_node_peer:
     host: *self_hostname
     port: 8655
   harvester_peer:
     host: *self_hostname
-    port: 8648
+    port: 8651
 
   pool_public_keys: []
 
@@ -122,7 +123,7 @@ farmer:
 
   # If True, starts an RPC server at the following port
   start_rpc_server: True
-  rpc_port: 8649
+  rpc_port: 8650
 
   # To send a share to a pool, a proof of space must have required_iters less than this number
   pool_share_threshold: 1000
@@ -147,7 +148,7 @@ timelord_launcher:
 
 timelord:
   # The timelord server (if run) will run on this port
-  port: 8646
+  port: 8654
   # Provides a list of VDF clients expected to connect to this timelord.
   # For each client, an IP is provided, together with the estimated iterations per second.
   vdf_clients:
@@ -252,10 +253,10 @@ full_node:
     - "dns-introducer.tranzact.cash"
   farmer_peer:
       host: *self_hostname
-      port: 8647
+      port: 8652
   timelord_peer:
       host: *self_hostname
-      port: 8646
+      port: 8654
   introducer_peer:
       host: introducer.tranzact.cash  # Tranzact AWS introducer IPv4/IPv6
       port: 8655
@@ -274,7 +275,7 @@ full_node:
 
 ui:
    # The ui node server (if run) will run on this port
-  port: 8622
+  port: 8657
 
   # Which port to use to communicate with the full node
   rpc_port: 8673
