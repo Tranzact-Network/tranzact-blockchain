@@ -15,15 +15,15 @@ Please review this [diagram](https://drive.google.com/file/d/1r7AXTrj7gtD0Xy-9Bt
 
 We would be pleased to accept code contributions to this project.
 As we have now released, the main priority is improving the mainnet blockchain.
-You can visit our [Trello project board](https://trello.com/b/ZuNx7sET) to get a sense of what is in the backlog.
+You can visit our [Trello project board](https://trello.com/b/8YkjKldb) to get a sense of what is in the backlog.
 Generally, things to the left are in progress or done. Some things go through "Coming up soon", but some will come directly out of other columns.
 Usually, the things closer to the top of each column are the ones that will be worked on soonest.
 If you are interested in cryptography, math, or just like hacking in python, there are many interesting problems to work on.
-Contact any of the team members on [Keybase](https://keybase.io/team/tranzact_network.public), which we use as the main communication method. You can also comment on any Trello card.
+Contact any of the team members on [Discord](https://discord.gg/r2HGpA73EU), which we use as the main communication method. You can also comment on any Trello card.
 
-We ask that external contributors create a fork of the `main` branch for any feature work they wish to take on.
+We ask that external contributors create a fork of the `tranzact` branch for any feature work they wish to take on.
 
-Members of the Tranzact organization may create feature branches from the `main` branch.
+Members of the Tranzact organization may create feature branches from the `tranzact` branch.
 
 In the event an emergency fix is required for the release version of Tranzact, members of the Tranzact organization will create a feature branch from the current release branch `1.0.0`.
 
@@ -31,16 +31,16 @@ In the event an emergency fix is required for the release version of Tranzact, m
 
 [Branching Strategy Diagram](https://drive.google.com/file/d/1mYmTi-aFgcyCc39pHyBaaBjV-vjvllBT/view?usp=sharing)
 
-1. All changes go into the main branch.
-2. Main is stable at all times, all tests pass.
-3. Features (with tests) are developed and fully tested on feature branches, and reviewed before landing in main.
+1. All changes go into the tranzact branch.
+2. Tranzact is stable at all times, all tests pass.
+3. Features (with tests) are developed and fully tested on feature branches, and reviewed before landing in tranzact.
 4. Tranzact Network's nodes on the public testnet are running the latest version `x.y.z`.
-5. The `main` branch will have a long running `beta testnet` to allow previewing of changes.
+5. The `tranzact` branch will have a long running `beta testnet` to allow previewing of changes.
 6. Pull Request events may require a `beta testnet` review environment. At the moment this is at the discretion of the reviewer.
-7. Hotfixes land in the release branch they fix, and all later versions. (This will be achieved by regularly merging from `1.0.x` to main).
+7. Hotfixes land in the release branch they fix, and all later versions. (This will be achieved by regularly merging from `1.0.x` to tranzact).
 8. Hotfixes that are emergency fixes for a specific version will be merged into (???), and removed from down-stream branches. This allows future merges without issues.
 9. Whoever develops a hotfix is also responsible for merging it into all later branches.
-10. A release branch (e.g. `1.1.x`) will be cut prior to a release, in order to separate work that should go into the release from work going into the next major release (main branch). (This pre-release branch will also have a `beta testnet` spun up for preview).
+10. A release branch (e.g. `1.1.x`) will be cut prior to a release, in order to separate work that should go into the release from work going into the next major release Tranzact branch). (This pre-release branch will also have a `beta testnet` spun up for preview).
 11. All Merge events will be squash merged.
 
 ## Run tests and linting
@@ -63,7 +63,7 @@ If you want verbose logging for tests, edit the `tests/pytest.ini` file.
 
 ## Pre-Commit
 
-We provide a [pre-commit configuration](https://github.com/Tranzact-Network/tranzact-blockchain/blob/main/.pre-commit-config.yaml) which triggers several useful
+We provide a [pre-commit configuration](https://github.com/Tranzact-Network/tranzact-blockchain/blob/tranzact/.pre-commit-config.yaml) which triggers several useful
 hooks (including linters/formatter) before each commit you make if you installed and set up [pre-commit](https://pre-commit.com/). This will help
 to reduce the time you spend on failed CI jobs.
 
@@ -92,7 +92,7 @@ workflow.
 3. Install BlackConnect plugin
 4. Set to run python black on save
 5. Set line length to 120
-6. Install these linters https://github.com/Tranzact-Network/tranzact-blockchain/tree/main/.github/linters
+6. Install these linters https://github.com/Tranzact-Network/tranzact-blockchain/tree/tranzact/.github/linters
 
 ## Testnets and review environments
 
@@ -100,14 +100,14 @@ With the launch of `1.0.0` we will begin running an official `testnet`.
 Prior to the release of `1.1.0` there will be two running test nets. `testnet` and `transaction-beta-testnet`. The `transaction-beta-testnet` testnet will be a beta of the pending 1.1 release, which will enable transactions on the tranzact blockchain.
 Following the release of `1.1.0`, the official `testnet` will include all changes that have been accepted to the current release branch.
 
-Prior to proposing changes to `main`, proposers should consider if running a `beta testnet` review environment will make the reviewer more effective when evaluating a change.
-Changes that impact the blockchain could require a review environment before acceptance into `main`. This is at the discretion of the reviewer.
+Prior to proposing changes to `tranzact`, proposers should consider if running a `beta testnet` review environment will make the reviewer more effective when evaluating a change.
+Changes that impact the blockchain could require a review environment before acceptance into `Tranzact`. This is at the discretion of the reviewer.
 Tranzact organization members have been granted CI access to deploy `beta testnets`.
-If you are not a Tranzact organization member, you can enquire about deploying a `beta testnet` in the public dev Keybase channel.
+If you are not a Tranzact organization member, you can enquire about deploying a `beta testnet` in the public dev Discord channel.
 
 ## Submit changes
 
-To propose changes, please make a pull request to the `main` branch. See Branching Strategy above.
+To propose changes, please make a pull request to the `tranzact` branch. See Branching Strategy above.
 
 To propose changes for the production releases of Tranzact, please make a pull request to the latest release branch.
 
