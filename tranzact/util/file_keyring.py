@@ -115,7 +115,7 @@ class FileKeyring(FileSystemEventHandler):
     The salt is updated each time the master passphrase is changed.
     """
 
-    keyring_path: Optional[Path] = None
+    keyring_path: Path
     keyring_lock_path: Path
     keyring_observer: Observer = None
     load_keyring_lock: threading.RLock  # Guards access to needs_load_keyring
@@ -430,7 +430,7 @@ class FileKeyring(FileSystemEventHandler):
 
     def write_data_to_keyring(self, data):
         os.makedirs(os.path.dirname(self.keyring_path), 0o700, True)
-        temp_path = self.keyring_path.with_suffix("." + str(os.getpid()))
+        temp_path: Path = self.keyring_path.with_suffix("." + str(os.getpid()))
         with open(os.open(str(temp_path), os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600), "w") as f:
             _ = yaml.safe_dump(data, f)
         try:

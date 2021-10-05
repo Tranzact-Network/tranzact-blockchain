@@ -120,6 +120,11 @@ def check_keys(new_root: Path, keychain: Optional[Keychain] = None) -> None:
             f"To change the TRZ destination addresses, edit the `trz_target_address` entries in"
             f" {(new_root / 'config' / 'config.yaml').absolute()}."
         )
+    if updated_target:
+        print(
+            f"To change the TRZ destination addresses, edit the `trz_target_address` entries in"
+            f" {(new_root / 'config' / 'config.yaml').absolute()}."
+        )
 
     # Set the pool pks in the farmer
     pool_pubkeys_hex = set(bytes(pk).hex() for pk in pool_child_pubkeys)

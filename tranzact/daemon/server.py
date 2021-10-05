@@ -29,6 +29,7 @@ from tranzact.util.keychain import (
     Keychain,
     KeyringCurrentPassphraseIsInvalid,
     KeyringRequiresMigration,
+    passphrase_requirements,
     supports_keyring_passphrase,
     supports_os_passphrase_storage,
 )
@@ -311,10 +312,16 @@ class WebSocketServer:
             response = await self.keyring_status()
         elif command == "unlock_keyring":
             response = await self.unlock_keyring(cast(Dict[str, Any], data))
+        elif command == "validate_keyring_passphrase":
+            response = await self.validate_keyring_passphrase(cast(Dict[str, Any], data))
+        elif command == "migrate_keyring":
+            response = await self.migrate_keyring(cast(Dict[str, Any], data))
         elif command == "set_keyring_passphrase":
             response = await self.set_keyring_passphrase(cast(Dict[str, Any], data))
         elif command == "remove_keyring_passphrase":
             response = await self.remove_keyring_passphrase(cast(Dict[str, Any], data))
+        elif command == "notify_keyring_migration_completed":
+            response = await self.notify_keyring_migration_completed(cast(Dict[str, Any], data))
         elif command == "exit":
             response = await self.stop()
         elif command == "register_service":
@@ -339,6 +346,7 @@ class WebSocketServer:
         user_passphrase_is_set: bool = Keychain.has_master_passphrase() and not using_default_passphrase()
         locked: bool = Keychain.is_keyring_locked()
         needs_migration: bool = Keychain.needs_migration()
+        requirements: Dict[str, Any] = passphrase_requirements()
         response: Dict[str, Any] = {
             "success": True,
             "is_keyring_locked": locked,
@@ -346,10 +354,11 @@ class WebSocketServer:
             "can_save_passphrase": can_save_passphrase,
             "user_passphrase_is_set": user_passphrase_is_set,
             "needs_migration": needs_migration,
+            "passphrase_requirements": requirements,
         }
         return response
 
-    async def unlock_keyring(self, request: Dict[str, Any]):
+    async def unlock_keyring(self, request: Dict[str, Any]) -> Dict[str, Any]:
         success: bool = False
         error: Optional[str] = None
         key: Optional[str] = request.get("key", None)
@@ -360,6 +369,8 @@ class WebSocketServer:
             if Keychain.master_passphrase_is_valid(key, force_reload=True):
                 Keychain.set_cached_master_passphrase(key)
                 success = True
+                # Inform the GUI of keyring status changes
+                self.keyring_status_changed(await self.keyring_status(), "wallet_ui")
             else:
                 error = "bad passphrase"
         except Exception as e:
@@ -379,7 +390,62 @@ class WebSocketServer:
         response: Dict[str, Any] = {"success": success, "error": error}
         return response
 
-    async def set_keyring_passphrase(self, request: Dict[str, Any]):
+    async def validate_keyring_passphrase(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        success: bool = False
+        error: Optional[str] = None
+        key: Optional[str] = request.get("key", None)
+        if type(key) is not str:
+            return {"success": False, "error": "missing key"}
+
+        try:
+            success = Keychain.master_passphrase_is_valid(key, force_reload=True)
+        except Exception as e:
+            tb = traceback.format_exc()
+            self.log.error(f"Keyring passphrase validation failed: {e} {tb}")
+            error = "validation exception"
+
+        response: Dict[str, Any] = {"success": success, "error": error}
+        return response
+
+    async def migrate_keyring(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        if Keychain.needs_migration() is False:
+            # If the keyring has already been migrated, we'll raise an error to the client.
+            # The reason for raising an error is because the migration request has side-
+            # effects beyond copying keys from the legacy keyring to the new keyring. The
+            # request may have set a passphrase and indicated that keys should be cleaned
+            # from the legacy keyring. If we were to return early and indicate success,
+            # the client and user's expectations may not match reality (were my keys
+            # deleted from the legacy keyring? was my passphrase set?).
+            return {"success": False, "error": "migration not needed"}
+
+        success: bool = False
+        error: Optional[str] = None
+        passphrase: Optional[str] = request.get("passphrase", None)
+        cleanup_legacy_keyring: bool = request.get("cleanup_legacy_keyring", False)
+
+        if passphrase is not None and type(passphrase) is not str:
+            return {"success": False, "error": 'expected string value for "passphrase"'}
+
+        if not Keychain.passphrase_meets_requirements(passphrase):
+            return {"success": False, "error": "passphrase doesn't satisfy requirements"}
+
+        if type(cleanup_legacy_keyring) is not bool:
+            return {"success": False, "error": 'expected bool value for "cleanup_legacy_keyring"'}
+
+        try:
+            Keychain.migrate_legacy_keyring(passphrase=passphrase, cleanup_legacy_keyring=cleanup_legacy_keyring)
+            success = True
+            # Inform the GUI of keyring status changes
+            self.keyring_status_changed(await self.keyring_status(), "wallet_ui")
+        except Exception as e:
+            tb = traceback.format_exc()
+            self.log.error(f"Legacy keyring migration failed: {e} {tb}")
+            error = f"keyring migration failed: {e}"
+
+        response: Dict[str, Any] = {"success": success, "error": error}
+        return response
+
+    async def set_keyring_passphrase(self, request: Dict[str, Any]) -> Dict[str, Any]:
         success: bool = False
         error: Optional[str] = None
         current_passphrase: Optional[str] = None
@@ -397,6 +463,9 @@ class WebSocketServer:
         if type(new_passphrase) is not str:
             return {"success": False, "error": "missing new_passphrase"}
 
+        if not Keychain.passphrase_meets_requirements(new_passphrase):
+            return {"success": False, "error": "passphrase doesn't satisfy requirements"}
+
         try:
             assert new_passphrase is not None  # mypy, I love you
             Keychain.set_master_passphrase(current_passphrase, new_passphrase, allow_migration=False)
@@ -409,11 +478,13 @@ class WebSocketServer:
             self.log.error(f"Failed to set keyring passphrase: {e} {tb}")
         else:
             success = True
+            # Inform the GUI of keyring status changes
+            self.keyring_status_changed(await self.keyring_status(), "wallet_ui")
 
         response: Dict[str, Any] = {"success": success, "error": error}
         return response
 
-    async def remove_keyring_passphrase(self, request: Dict[str, Any]):
+    async def remove_keyring_passphrase(self, request: Dict[str, Any]) -> Dict[str, Any]:
         success: bool = False
         error: Optional[str] = None
         current_passphrase: Optional[str] = None
@@ -434,6 +505,34 @@ class WebSocketServer:
             self.log.error(f"Failed to remove keyring passphrase: {e} {tb}")
         else:
             success = True
+            # Inform the GUI of keyring status changes
+            self.keyring_status_changed(await self.keyring_status(), "wallet_ui")
+
+        response: Dict[str, Any] = {"success": success, "error": error}
+        return response
+
+    async def notify_keyring_migration_completed(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        success: bool = False
+        error: Optional[str] = None
+        key: Optional[str] = request.get("key", None)
+
+        if type(key) is not str:
+            return {"success": False, "error": "missing key"}
+
+        Keychain.handle_migration_completed()
+
+        try:
+            if Keychain.master_passphrase_is_valid(key, force_reload=True):
+                Keychain.set_cached_master_passphrase(key)
+                success = True
+                # Inform the GUI of keyring status changes
+                self.keyring_status_changed(await self.keyring_status(), "wallet_ui")
+            else:
+                error = "bad passphrase"
+        except Exception as e:
+            tb = traceback.format_exc()
+            self.log.error(f"Keyring passphrase validation failed: {e} {tb}")
+            error = "validation exception"
 
         response: Dict[str, Any] = {"success": success, "error": error}
         return response
@@ -441,6 +540,33 @@ class WebSocketServer:
     def get_status(self) -> Dict[str, Any]:
         response = {"success": True, "genesis_initialized": True}
         return response
+
+    async def _keyring_status_changed(self, keyring_status: Dict[str, Any], destination: str):
+        """
+        Attempt to communicate with the GUI to inform it of any keyring status changes
+        (e.g. keyring becomes unlocked or migration completes)
+        """
+        websockets = self.connections.get("wallet_ui", None)
+
+        if websockets is None:
+            return None
+
+        if keyring_status is None:
+            return None
+
+        response = create_payload("keyring_status_changed", keyring_status, "daemon", destination)
+
+        for websocket in websockets:
+            try:
+                await websocket.send(response)
+            except Exception as e:
+                tb = traceback.format_exc()
+                self.log.error(f"Unexpected exception trying to send to websocket: {e} {tb}")
+                websockets.remove(websocket)
+                await websocket.close()
+
+    def keyring_status_changed(self, keyring_status: Dict[str, Any], destination: str):
+        asyncio.create_task(self._keyring_status_changed(keyring_status, destination))
 
     def plot_queue_to_payload(self, plot_queue_item, send_full_log: bool) -> Dict[str, Any]:
         error = plot_queue_item.get("error")
@@ -686,8 +812,10 @@ class WebSocketServer:
             }
             return response
 
+        ids: List[str] = []
         for k in range(count):
             id = str(uuid.uuid4())
+            ids.append(id)
             config = {
                 "id": id,
                 "size": size,
@@ -708,7 +836,7 @@ class WebSocketServer:
             # notify GUI about new plot queue item
             self.state_changed(service_plotter, self.prepare_plot_state_message(PlotEvent.STATE_CHANGED, id))
 
-            # only first item can start when user selected serial plotting
+            # only the first item can start when user selected serial plotting
             can_start_serial_plotting = k == 0 and self._is_serial_plotting_running(queue) is False
 
             if parallel is True or can_start_serial_plotting:
@@ -720,6 +848,7 @@ class WebSocketServer:
 
         response = {
             "success": True,
+            "ids": ids,
             "service_name": service_name,
         }
 
