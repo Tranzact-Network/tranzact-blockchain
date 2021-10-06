@@ -1,8 +1,10 @@
+import asyncio
 import keyring as keyring_main
 
-from tranzact.util.default_root import DEFAULT_KEYS_ROOT_PATH
-from tranzact.util.file_keyring import FileKeyring
-from tranzact.util.misc import prompt_yes_no
+from blspy import PrivateKey  # pyright: reportMissingImports=false
+from chia.util.default_root import DEFAULT_KEYS_ROOT_PATH
+from chia.util.file_keyring import FileKeyring
+from chia.util.misc import prompt_yes_no
 from keyrings.cryptfile.cryptfile import CryptFileKeyring  # pyright: reportMissingImports=false
 from keyring.backends.macOS import Keyring as MacKeyring
 from keyring.errors import KeyringError
@@ -16,7 +18,7 @@ from typing import Any, List, Optional, Tuple, Type, Union
 # WARNING: Changing the default passphrase will prevent passphrase-less users from accessing
 # their existing keys. Using a new default passphrase requires migrating existing users to
 # the new passphrase.
-DEFAULT_PASSPHRASE_IF_NO_MASTER_PASSPHRASE = "$ tranzact passphrase set # all the cool kids are doing it!"
+DEFAULT_PASSPHRASE_IF_NO_MASTER_PASSPHRASE = "$ chia passphrase set # all the cool kids are doing it!"
 
 MAC_KEYCHAIN_MASTER_PASSPHRASE_SERVICE = "Tranzact Passphrase"
 MAC_KEYCHAIN_MASTER_PASSPHRASE_USER = "Tranzact Passphrase"
@@ -24,7 +26,7 @@ MAC_KEYCHAIN_MASTER_PASSPHRASE_USER = "Tranzact Passphrase"
 
 def check_macos_keychain_keys_present(mac_keychain: MacKeyring) -> bool:
     from keyring.credentials import SimpleCredential
-    from tranzact.util.keychain import default_keychain_user, default_keychain_service, get_private_key_user, MAX_KEYS
+    from chia.util.keychain import default_keychain_user, default_keychain_service, get_private_key_user, MAX_KEYS
 
     keychain_user: str = default_keychain_user()
     keychain_service: str = default_keychain_service()
@@ -81,6 +83,10 @@ class KeyringWrapper:
         the data from the legacy CryptFileKeyring (on write).
         """
         self.keys_root_path = keys_root_path
+        self.refresh_keyrings()
+
+    def refresh_keyrings(self):
+        self.keyring = None
         self.keyring = self._configure_backend()
 
         # Configure the legacy keyring if keyring passphrases are supported to support migration (if necessary)
@@ -90,7 +96,7 @@ class KeyringWrapper:
         self.cached_passphrase = self._get_initial_cached_passphrase()
 
     def _configure_backend(self) -> Union[Any, FileKeyring]:
-        from tranzact.util.keychain import supports_keyring_passphrase
+        from chia.util.keychain import supports_keyring_passphrase
 
         if self.keyring:
             raise Exception("KeyringWrapper has already been instantiated")
@@ -142,7 +148,7 @@ class KeyringWrapper:
         return None
 
     def _get_initial_cached_passphrase(self) -> str:
-        from tranzact.util.keychain import supports_os_passphrase_storage
+        from chia.util.keychain import supports_os_passphrase_storage
 
         passphrase: Optional[str] = None
 
@@ -250,7 +256,7 @@ class KeyringWrapper:
                 if not allow_migration:
                     raise KeyringRequiresMigration("keyring requires migration")
 
-                self.migrate_legacy_keyring()
+                self.migrate_legacy_keyring_interactive()
             else:
                 # We're reencrypting the keyring contents using the new passphrase. Ensure that the
                 # payload has been decrypted by calling load_keyring with the current passphrase.
@@ -305,6 +311,19 @@ class KeyringWrapper:
 
     # Legacy keyring migration
 
+    class MigrationResults:
+        def __init__(
+            self,
+            original_private_keys: List[Tuple[PrivateKey, bytes]],
+            legacy_keyring: Any,
+            keychain_service: str,
+            keychain_users: List[str],
+        ):
+            self.original_private_keys = original_private_keys
+            self.legacy_keyring = legacy_keyring
+            self.keychain_service = keychain_service
+            self.keychain_users = keychain_users
+
     def confirm_migration(self) -> bool:
         """
         Before beginning migration, we'll notify the user that the legacy keyring needs to be
@@ -321,12 +340,12 @@ class KeyringWrapper:
                 "passphrase."
             )
             print(
-                "Would you like to set a master passphrase now? Use 'tranzact passphrase set' to change the passphrase.\n"
+                "Would you like to set a master passphrase now? Use 'chia passphrase set' to change the passphrase.\n"
             )
 
             response = prompt_yes_no("Set keyring master passphrase? (y/n) ")
             if response:
-                from tranzact.cmds.passphrase_funcs import prompt_for_new_passphrase
+                from chia.cmds.passphrase_funcs import prompt_for_new_passphrase
 
                 # Prompt for a master passphrase and cache it
                 new_passphrase, save_passphrase = prompt_for_new_passphrase()
@@ -338,7 +357,7 @@ class KeyringWrapper:
                 )
             else:
                 print(
-                    "Will skip setting a master passphrase. Use 'tranzact passphrase set' to set the master passphrase.\n"
+                    "Will skip setting a master passphrase. Use 'chia passphrase set' to set the master passphrase.\n"
                 )
         else:
             import colorama
@@ -355,11 +374,11 @@ class KeyringWrapper:
         return prompt_yes_no("Begin keyring migration? (y/n) ")
 
     def migrate_legacy_keys(self) -> MigrationResults:
-        from tranzact.util.keychain import get_private_key_user, Keychain, MAX_KEYS
+        from chia.util.keychain import get_private_key_user, Keychain, MAX_KEYS
 
         print("Migrating contents from legacy keyring")
 
-        keychain = Keychain()
+        keychain: Keychain = Keychain()
         # Obtain contents from the legacy keyring. When using the Keychain interface
         # to read, the legacy keyring will be preferred over the new keyring.
         original_private_keys = keychain.get_all_private_keys()
@@ -382,18 +401,35 @@ class KeyringWrapper:
         for (user, passphrase) in user_passphrase_pairs:
             self.keyring.set_password(service, user, passphrase)
 
+        return KeyringWrapper.MigrationResults(
+            original_private_keys, self.legacy_keyring, service, [user for (user, _) in user_passphrase_pairs]
+        )
+
+    def verify_migration_results(self, migration_results: MigrationResults) -> bool:
+        from chia.util.keychain import Keychain
+
         # Stop using the legacy keyring. This will direct subsequent reads to the new keyring.
-        old_keyring = self.legacy_keyring
         self.legacy_keyring = None
+        success: bool = False
 
         print("Verifying migration results...", end="")
 
         # Compare the original keyring contents with the new
         try:
+            keychain: Keychain = Keychain()
+            original_private_keys = migration_results.original_private_keys
             post_migration_private_keys = keychain.get_all_private_keys()
 
+            # Sort the key collections prior to comparing
+            original_private_keys.sort(key=lambda e: str(e[0]))
+            post_migration_private_keys.sort(key=lambda e: str(e[0]))
+
             if post_migration_private_keys == original_private_keys:
+                success = True
                 print(" Verified")
+            else:
+                print(" Failed")
+                raise ValueError("Migrated keys don't match original keys")
         except Exception as e:
             print(f"\nMigration failed: {e}")
             print("Leaving legacy keyring intact")
@@ -435,26 +471,46 @@ class KeyringWrapper:
         results = self.migrate_legacy_keys()
         success = self.verify_migration_results(results)
 
+        if success and cleanup_legacy_keyring:
+            self.cleanup_legacy_keyring(results)
+
+    def migrate_legacy_keyring_interactive(self):
+        """
+        Handle importing keys from the legacy keyring into the new keyring.
+
+        Prior to beginning, we'll ensure that we at least suggest setting a master passphrase
+        and backing up mnemonic seeds. After importing keys from the legacy keyring, we'll
+        perform a before/after comparison of the keyring contents, and on success we'll prompt
+        to cleanup the legacy keyring.
+        """
+        from chia.cmds.passphrase_funcs import async_update_daemon_migration_completed_if_running
+
+        # Make sure the user is ready to begin migration.
+        response = self.confirm_migration()
+        if not response:
+            print("Skipping migration. Unable to proceed")
+            exit(0)
+
+        try:
+            results = self.migrate_legacy_keys()
+            success = self.verify_migration_results(results)
+
+            if success:
+                print(f"Keyring migration completed successfully ({str(self.keyring.keyring_path)})\n")
+        except Exception as e:
+            print(f"\nMigration failed: {e}")
+            print("Leaving legacy keyring intact")
+            exit(1)
+
         # Ask if we should clean up the legacy keyring
-        self.confirm_legacy_keyring_cleanup(old_keyring, service, [user for (user, _) in user_passphrase_pairs])
-
-    def confirm_legacy_keyring_cleanup(self, legacy_keyring, service, users):
-        """
-        Ask the user whether we should remove keys from the legacy keyring. We can't just
-        delete the file because other python processes might use the same keyring file.
-        """
-
-        response = prompt_yes_no(f"Remove keys from old keyring ({str(legacy_keyring.file_path)})? (y/n) ")
-
-        if response:
-            for user in users:
-                legacy_keyring.delete_password(service, user)
+        if self.confirm_legacy_keyring_cleanup(results):
+            self.cleanup_legacy_keyring(results)
             print("Removed keys from old keyring")
         else:
             print("Keys in old keyring left intact")
 
-        # TODO: CryptFileKeyring doesn't cleanup section headers
-        # [tranzact_2Duser_2Dtranzact_2D1_2E8] is left behind
+        # Notify the daemon (if running) that migration has completed
+        asyncio.get_event_loop().run_until_complete(async_update_daemon_migration_completed_if_running())
 
     # Keyring interface
 
@@ -469,13 +525,13 @@ class KeyringWrapper:
     def set_passphrase(self, service: str, user: str, passphrase: str):
         # On the first write while using the legacy keyring, we'll start migration
         if self.using_legacy_keyring() and self.has_cached_master_passphrase():
-            self.migrate_legacy_keyring()
+            self.migrate_legacy_keyring_interactive()
 
         self.get_keyring().set_password(service, user, passphrase)
 
     def delete_passphrase(self, service: str, user: str):
         # On the first write while using the legacy keyring, we'll start migration
         if self.using_legacy_keyring() and self.has_cached_master_passphrase():
-            self.migrate_legacy_keyring()
+            self.migrate_legacy_keyring_interactive()
 
         self.get_keyring().delete_password(service, user)
