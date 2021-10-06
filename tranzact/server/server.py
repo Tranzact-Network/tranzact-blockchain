@@ -22,7 +22,7 @@ from tranzact.protocols.shared_protocol import protocol_version
 from tranzact.server.introducer_peers import IntroducerPeers
 from tranzact.server.outbound_message import Message, NodeType
 from tranzact.server.ssl_context import private_ssl_paths, public_ssl_paths
-from tranzact.server.ws_connection import WSChiaConnection
+from tranzact.server.ws_connection import WSTranzactConnection
 from tranzact.types.blockchain_format.sized_bytes import bytes32
 from tranzact.types.peer_info import PeerInfo
 from tranzact.util.errors import Err, ProtocolError
