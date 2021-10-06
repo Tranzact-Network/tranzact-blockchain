@@ -6,22 +6,22 @@ import pytest
 from clvm.casts import int_to_bytes
 from colorlog import logging
 
-from chia.consensus.block_rewards import calculate_pool_reward, calculate_base_farmer_reward
-from chia.protocols import wallet_protocol, full_node_protocol
-from chia.protocols.full_node_protocol import RespondTransaction
-from chia.protocols.protocol_message_types import ProtocolMessageTypes
-from chia.protocols.wallet_protocol import RespondToCoinUpdates, CoinStateUpdate, RespondToPhUpdates, CoinState
-from chia.server.outbound_message import NodeType
-from chia.simulator.simulator_protocol import FarmNewBlockProtocol, ReorgProtocol
-from chia.types.blockchain_format.coin import Coin
-from chia.types.coin_record import CoinRecord
-from chia.types.condition_opcodes import ConditionOpcode
-from chia.types.condition_with_args import ConditionWithArgs
-from chia.types.peer_info import PeerInfo
-from chia.types.spend_bundle import SpendBundle
-from chia.util.ints import uint16, uint32, uint64
-from chia.wallet.wallet import Wallet
-from chia.wallet.wallet_state_manager import WalletStateManager
+from tranzact.consensus.block_rewards import calculate_pool_reward, calculate_base_farmer_reward
+from tranzact.protocols import wallet_protocol, full_node_protocol
+from tranzact.protocols.full_node_protocol import RespondTransaction
+from tranzact.protocols.protocol_message_types import ProtocolMessageTypes
+from tranzact.protocols.wallet_protocol import RespondToCoinUpdates, CoinStateUpdate, RespondToPhUpdates, CoinState
+from tranzact.server.outbound_message import NodeType
+from tranzact.simulator.simulator_protocol import FarmNewBlockProtocol, ReorgProtocol
+from tranzact.types.blockchain_format.coin import Coin
+from tranzact.types.coin_record import CoinRecord
+from tranzact.types.condition_opcodes import ConditionOpcode
+from tranzact.types.condition_with_args import ConditionWithArgs
+from tranzact.types.peer_info import PeerInfo
+from tranzact.types.spend_bundle import SpendBundle
+from tranzact.util.ints import uint16, uint32, uint64
+from tranzact.wallet.wallet import Wallet
+from tranzact.wallet.wallet_state_manager import WalletStateManager
 from tests.connection_utils import add_dummy_connection
 from tests.setup_nodes import self_hostname, setup_simulators_and_wallets, bt
 from tests.time_out_assert import time_out_assert
