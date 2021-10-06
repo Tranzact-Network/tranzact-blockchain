@@ -14,7 +14,7 @@ from tranzact.util.clvm import int_from_bytes
 from tranzact.util.condition_tools import ConditionOpcode
 from tranzact.util.errors import Err
 from tranzact.util.ints import uint32, uint64, uint16
-from chtranzactia.wallet.puzzles.generator_loader import GENERATOR_FOR_SINGLE_COIN_MOD
+from tranzact.wallet.puzzles.generator_loader import GENERATOR_FOR_SINGLE_COIN_MOD
 from tranzact.wallet.puzzles.rom_bootstrap_generator import get_generator
 
 GENERATOR_MOD = get_generator()
