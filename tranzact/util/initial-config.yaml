@@ -218,6 +218,8 @@ full_node:
 
   # How often to initiate outbound connections to other full nodes.
   peer_connect_interval: 30
+  # How long to wait for a peer connection
+  peer_connect_timeout: 30
   # Accept peers until this number of connections
   target_peer_count: 80
   # Initiate outbound connections until this number is hit.
@@ -246,6 +248,10 @@ full_node:
   # when enabled, the full node will print a pstats profile to the root_dir/profile every second
   # analyze with tranzact/utils/profiler.py
   enable_profiler: False
+
+  # this is a debug and profiling facility that logs all SQLite commands to a
+  # separate log file (under logging/sql.log).
+  log_sqlite_cmds: False
 
   # List of trusted DNS seeders to bootstrap from.
   # If you modify this, please change the hardcode as well from FullNode.set_server()

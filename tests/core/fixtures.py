@@ -10,6 +10,7 @@ from tranzact.consensus.blockchain import Blockchain
 from tranzact.consensus.constants import ConsensusConstants
 from tranzact.full_node.block_store import BlockStore
 from tranzact.full_node.coin_store import CoinStore
+from tranzact.full_node.hint_store import HintStore
 from tranzact.types.full_block import FullBlock
 from tranzact.util.db_wrapper import DBWrapper
 from tranzact.util.path import mkdir
@@ -29,17 +30,18 @@ async def create_blockchain(constants: ConsensusConstants):
     wrapper = DBWrapper(connection)
     coin_store = await CoinStore.create(wrapper)
     store = await BlockStore.create(wrapper)
-    bc1 = await Blockchain.create(coin_store, store, constants)
+    hint_store = await HintStore.create(wrapper)
+    bc1 = await Blockchain.create(coin_store, store, constants, hint_store)
     assert bc1.get_peak() is None
     return bc1, connection, db_path
 
 
-@pytest.fixture(scope="function", params=[0, 10000000])
+@pytest.fixture(scope="function")
 async def empty_blockchain(request):
     """
     Provides a list of 10 valid blocks, as well as a blockchain with 9 blocks added to it.
     """
-    bc1, connection, db_path = await create_blockchain(test_constants.replace(RUST_CONDITION_CHECKER=request.param))
+    bc1, connection, db_path = await create_blockchain(test_constants)
     yield bc1
 
     await connection.close()
