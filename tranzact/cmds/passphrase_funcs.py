@@ -58,7 +58,7 @@ def prompt_to_save_passphrase() -> bool:
             print(
                 "\n"
                 "Your passphrase can be stored in your system's secure credential store. "
-                "Other Chia processes will be able to access your keys without prompting for your passphrase."
+                "Other Tranzact processes will be able to access your keys without prompting for your passphrase."
             )
             save = prompt_yes_no(f"Would you like to save your passphrase to the {location} (y/n) ")
 

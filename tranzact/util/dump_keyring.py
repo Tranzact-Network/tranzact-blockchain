@@ -5,10 +5,10 @@ import colorama
 import threading
 import yaml
 
-from chia.cmds.passphrase_funcs import read_passphrase_from_file
-from chia.util.default_root import DEFAULT_KEYS_ROOT_PATH
-from chia.util.file_keyring import FileKeyring
-from chia.util.keyring_wrapper import DEFAULT_PASSPHRASE_IF_NO_MASTER_PASSPHRASE
+from tranzact.cmds.passphrase_funcs import read_passphrase_from_file
+from tranzact.util.default_root import DEFAULT_KEYS_ROOT_PATH
+from tranzact.util.file_keyring import FileKeyring
+from tranzact.util.keyring_wrapper import DEFAULT_PASSPHRASE_IF_NO_MASTER_PASSPHRASE
 from cryptography.exceptions import InvalidTag
 from getpass import getpass
 from io import TextIOWrapper
