@@ -2,18 +2,18 @@ import asyncio
 import random
 from time import time
 from pathlib import Path
-from chia.full_node.coin_store import CoinStore
+from tranzact.full_node.coin_store import CoinStore
 from typing import List
 import os
 import sys
 
 import aiosqlite
-from chia.util.db_wrapper import DBWrapper
-from chia.consensus.coinbase import create_farmer_coin, create_pool_coin
-from chia.consensus.default_constants import DEFAULT_CONSTANTS
-from chia.types.blockchain_format.sized_bytes import bytes32
-from chia.types.blockchain_format.coin import Coin
-from chia.util.ints import uint64
+from tranzact.util.db_wrapper import DBWrapper
+from tranzact.consensus.coinbase import create_farmer_coin, create_pool_coin
+from tranzact.consensus.default_constants import DEFAULT_CONSTANTS
+from tranzact.types.blockchain_format.sized_bytes import bytes32
+from tranzact.types.blockchain_format.coin import Coin
+from tranzact.util.ints import uint64
 
 
 NUM_ITERS = 200
