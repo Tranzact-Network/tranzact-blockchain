@@ -22,7 +22,7 @@ from tranzact.util.ints import uint64, uint32
 from tests.wallet_tools import WalletTool
 from tranzact.util.db_wrapper import DBWrapper
 from tests.setup_nodes import bt, test_constants
-from chia.types.blockchain_format.sized_bytes import bytes32
+from tranzact.types.blockchain_format.sized_bytes import bytes32
 
 
 @pytest.fixture(scope="module")
