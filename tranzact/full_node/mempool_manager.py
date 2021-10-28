@@ -27,9 +27,7 @@ from tranzact.types.mempool_inclusion_status import MempoolInclusionStatus
 from tranzact.types.mempool_item import MempoolItem
 from tranzact.types.spend_bundle import SpendBundle
 from tranzact.util.clvm import int_from_bytes
-from tranzact.util.condition_tools import (
-    pkm_pairs_for_conditions_dict,
-)
+from tranzact.util.condition_tools import pkm_pairs
 from tranzact.util.errors import Err
 from tranzact.util.generator_tools import additions_for_npc
 from tranzact.util.ints import uint32, uint64
@@ -115,7 +113,6 @@ class MempoolManager:
                 f"full: {cost_sum / self.constants.MAX_BLOCK_COST_CLVM}"
             )
             agg = SpendBundle.aggregate(spend_bundles)
-            assert set(agg.removals()) == set(removals)
             return agg, additions, removals
         else:
             return None
@@ -381,8 +378,6 @@ class MempoolManager:
             return None, MempoolInclusionStatus.FAILED, tmp_error
 
         # Verify conditions, create hash_key list for aggsig check
-        pks: List[G1Element] = []
-        msgs: List[bytes32] = []
         error: Optional[Err] = None
         for npc in npc_list:
             coin_record: CoinRecord = removal_record_dict[npc.coin_name]
@@ -412,16 +407,14 @@ class MempoolManager:
                     return uint64(cost), MempoolInclusionStatus.PENDING, error
                 break
 
-            if validate_signature:
-                for pk, message in pkm_pairs_for_conditions_dict(
-                    npc.condition_dict, npc.coin_name, self.constants.AGG_SIG_ME_ADDITIONAL_DATA
-                ):
-                    pks.append(pk)
-                    msgs.append(message)
         if error:
             return None, MempoolInclusionStatus.FAILED, error
 
         if validate_signature:
+            pks: List[G1Element] = []
+            msgs: List[bytes32] = []
+            pks, msgs = pkm_pairs(npc_list, self.constants.AGG_SIG_ME_ADDITIONAL_DATA)
+
             # Verify aggregated signature
             if not cached_bls.aggregate_verify(pks, msgs, new_spend.aggregated_signature, True):
                 log.warning(f"Aggsig validation error {pks} {msgs} {new_spend}")

@@ -25,7 +25,7 @@ from tranzact.util.config import (
 from tranzact.util.ints import uint32
 from tranzact.util.keychain import Keychain
 from tranzact.util.path import mkdir
-from tranzact.util.ssl import (
+from tranzact.util.ssl_check import (
     DEFAULT_PERMISSIONS_CERT_FILE,
     DEFAULT_PERMISSIONS_KEY_FILE,
     RESTRICT_MASK_CERT_FILE,

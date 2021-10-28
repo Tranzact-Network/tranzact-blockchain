@@ -28,7 +28,7 @@ from tranzact.types.peer_info import PeerInfo
 from tranzact.util.errors import Err, ProtocolError
 from tranzact.util.ints import uint16
 from tranzact.util.network import is_localhost, is_in_network
-from tranzact.util.ssl import verify_ssl_certs_and_keys
+from tranzact.util.ssl_check import verify_ssl_certs_and_keys
 
 
 def ssl_context_for_server(

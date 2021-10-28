@@ -16,7 +16,7 @@ from tranzact.cmds.wallet import wallet_cmd
 from tranzact.cmds.plotnft import plotnft_cmd
 from tranzact.util.default_root import DEFAULT_KEYS_ROOT_PATH, DEFAULT_ROOT_PATH
 from tranzact.util.keychain import set_keys_root_path, supports_keyring_passphrase
-from tranzact.util.ssl import check_ssl
+from tranzact.util.ssl_check import check_ssl
 from typing import Optional
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])

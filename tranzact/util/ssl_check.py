@@ -6,7 +6,7 @@ from tranzact.util.permissions import octal_mode_string, verify_file_permissions
 from logging import Logger
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
- 
+
 DEFAULT_PERMISSIONS_CERT_FILE: int = 0o644
 DEFAULT_PERMISSIONS_KEY_FILE: int = 0o600
 
