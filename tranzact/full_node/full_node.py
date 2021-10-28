@@ -62,7 +62,7 @@ from tranzact.util.path import mkdir, path_from_root
 from tranzact.util.safe_cancel_task import cancel_task_safe
 from tranzact.util.profiler import profile_task
 from datetime import datetime
-from chia.util.db_synchronous import db_synchronous_on
+from tranzact.util.db_synchronous import db_synchronous_on
 
 
 class FullNode:

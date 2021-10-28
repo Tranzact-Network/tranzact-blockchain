@@ -137,7 +137,7 @@ class TempKeyring:
         # Patch supports_keyring_passphrase() to return True
         mock_supports_keyring_passphrase.return_value = True
 
-        mock_supports_os_passphrase_storage_patch = patch("chia.util.keychain.supports_os_passphrase_storage")
+        mock_supports_os_passphrase_storage_patch = patch("tranzact.util.keychain.supports_os_passphrase_storage")
         mock_supports_os_passphrase_storage = mock_supports_os_passphrase_storage_patch.start()
 
         # Patch supports_os_passphrase_storage() to return use_os_credential_store
