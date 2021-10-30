@@ -100,7 +100,7 @@ class TempKeyring:
         self,
         *,
         user: str = "testing-1.8.0",
-        service: str = "testing-tranzact-1.8.0",
+        service: str = "testing-chia-1.8.0",
         populate: bool = False,
         setup_cryptfilekeyring: bool = False,
         existing_keyring_path: str = None,
