@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 if ([Environment]::Is64BitOperatingSystem -eq $false)
 {
-    Write-Output "Chia requires a 64-bit Windows installation"
+    Write-Output "Tranzact requires a 64-bit Windows installation"
     Exit 1
 }
 
@@ -51,13 +51,12 @@ pip install --extra-index-url https://pypi.chia.net/simple/ miniupnpc==2.2.2
 pip install --editable . --extra-index-url https://pypi.chia.net/simple/
 
 Write-Output ""
-Write-Output "Chia blockchain .\Install.ps1 complete."
+Write-Output "Tranzact blockchain .\Install.ps1 complete."
 Write-Output "For assistance join us on Keybase in the #support chat channel:"
-Write-Output "https://keybase.io/team/chia_network.public"
-Write-Output ""
-Write-Output "Try the Quick Start Guide to running chia-blockchain:"
-Write-Output "https://github.com/Chia-Network/chia-blockchain/wiki/Quick-Start-Guide"
+Write-Output "https://discord.gg/r2HGpA73EU"
+Write-Output "Try the Quick Start Guide to running tranzact-blockchain:"
+Write-Output "https://github.com/Tranzact-Network/tranzact-blockchain/wiki/Quick-Start-Guide"
 Write-Output ""
 Write-Output "To install the GUI type '.\Install-gui.ps1' after '.\venv\scripts\Activate.ps1'."
 Write-Output ""
-Write-Output "Type '.\venv\Scripts\Activate.ps1' and then 'chia init' to begin."
+Write-Output "Type '.\venv\Scripts\Activate.ps1' and then 'tranzact init' to begin."
