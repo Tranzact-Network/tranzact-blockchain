@@ -1264,7 +1264,7 @@ class FullNode:
         block: FullBlock,
         record: BlockRecord,
         fork_height: uint32,
-        peer: Optional[ws.WSChiaConnection],
+        peer: Optional[ws.WSTranzactConnection],
         coin_changes: Tuple[List[CoinRecord], Dict[bytes, Dict[bytes32, CoinRecord]]],
         mempool_peak_result: List[Tuple[SpendBundle, NPCResult, bytes32]],
         fns_peak_result: FullNodeStorePeakResult,
