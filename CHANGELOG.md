@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project does not yet adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 for setuptools_scm/PEP 440 reasons.
 
+## 1.0.4 Tranzact blockchain 2021-11-09
+
+### Changed
+
+- Updated from Chia&reg; upstream to v1.2.11
 
 ## 1.0.3 Tranzact blockchain 2021-10-27
 

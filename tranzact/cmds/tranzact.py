@@ -14,6 +14,7 @@ from tranzact.cmds.start import start_cmd
 from tranzact.cmds.stop import stop_cmd
 from tranzact.cmds.wallet import wallet_cmd
 from tranzact.cmds.plotnft import plotnft_cmd
+from tranzact.cmds.plotters import plotters_cmd
 from tranzact.util.default_root import DEFAULT_KEYS_ROOT_PATH, DEFAULT_ROOT_PATH
 from tranzact.util.keychain import set_keys_root_path, supports_keyring_passphrase
 from tranzact.util.ssl_check import check_ssl
@@ -66,7 +67,7 @@ def cli(
         set_keys_root_path(Path(keys_root_path))
 
     if passphrase_file is not None:
-        from .passphrase_funcs import cache_passphrase, read_passphrase_from_file
+        from chia.cmds.passphrase_funcs import cache_passphrase, read_passphrase_from_file
 
         try:
             cache_passphrase(read_passphrase_from_file(passphrase_file))
@@ -118,6 +119,7 @@ cli.add_command(start_cmd)
 cli.add_command(stop_cmd)
 cli.add_command(netspace_cmd)
 cli.add_command(farm_cmd)
+cli.add_command(plotters_cmd)
 
 if supports_keyring_passphrase():
     cli.add_command(passphrase_cmd)
