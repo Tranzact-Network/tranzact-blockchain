@@ -25,7 +25,7 @@ jobs:
 
     steps:
     - name: Cancel previous runs on the same branch
-      if: ${{ github.ref != 'refs/heads/main' }}
+      if: ${{ github.ref != 'refs/heads/tranzact' }}
       uses: styfle/cancel-workflow-action@0.9.1
       with:
         access_token: ${{ github.token }}
@@ -107,8 +107,8 @@ jobs:
     - name: Get latest madmax plotter
       run: |
         mkdir "$GITHUB_WORKSPACE/madmax"
-        wget -O "$GITHUB_WORKSPACE/madmax/tranzact_plot" https://github.com/Chia-Network/chia-plotter-madmax/releases/download/${{ steps.latest-madmax.outputs.result }}/tranzact_plot-${{ steps.latest-madmax.outputs.result }}-x86-64
-        wget -O "$GITHUB_WORKSPACE/madmax/tranzact_plot_k34" https://github.com/Chia-Network/chia-plotter-madmax/releases/download/${{ steps.latest-madmax.outputs.result }}/tranzact_plot_k34-${{ steps.latest-madmax.outputs.result }}-x86-64
+        wget -O "$GITHUB_WORKSPACE/madmax/tranzact_plot" https://github.com/Chia-Network/chia-plotter-madmax/releases/download/${{ steps.latest-madmax.outputs.result }}/chia_plot-${{ steps.latest-madmax.outputs.result }}-x86-64
+        wget -O "$GITHUB_WORKSPACE/madmax/tranzact_plot_k34" https://github.com/Chia-Network/chia-plotter-madmax/releases/download/${{ steps.latest-madmax.outputs.result }}/chia_plot_k34-${{ steps.latest-madmax.outputs.result }}-x86-64
         chmod +x "$GITHUB_WORKSPACE/madmax/tranzact_plot"
         chmod +x "$GITHUB_WORKSPACE/madmax/tranzact_plot_k34"
 

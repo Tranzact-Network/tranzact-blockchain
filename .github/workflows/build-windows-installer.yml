@@ -10,7 +10,7 @@ on:
   pull_request:
     branches:
       - '**'
-s
+      
 jobs:
   build:
     name: Windows Installer on Windows 10 and Python 3.9
@@ -113,8 +113,8 @@ jobs:
     - name: Get latest madmax plotter
       run: |
         mkdir "$env:GITHUB_WORKSPACE\madmax"
-        Invoke-WebRequest https://github.com/Chia-Network/chia-plotter-madmax/releases/download/${{ steps.latest-madmax.outputs.result }}/tranzact_plot-${{ steps.latest-madmax.outputs.result }}.exe -OutFile "$env:GITHUB_WORKSPACE\madmax\tranzact_plot.exe"
-        Invoke-WebRequest https://github.com/Chia-Network/chia-plotter-madmax/releases/download/${{ steps.latest-madmax.outputs.result }}/tranzact_plot_k34-${{ steps.latest-madmax.outputs.result }}.exe -OutFile "$env:GITHUB_WORKSPACE\madmax\tranzact_plot_k34.exe"
+        Invoke-WebRequest https://github.com/Chia-Network/chia-plotter-madmax/releases/download/${{ steps.latest-madmax.outputs.result }}/chia_plot-${{ steps.latest-madmax.outputs.result }}.exe -OutFile "$env:GITHUB_WORKSPACE\madmax\tranzact_plot.exe"
+        Invoke-WebRequest https://github.com/Chia-Network/chia-plotter-madmax/releases/download/${{ steps.latest-madmax.outputs.result }}/chia_plot_k34-${{ steps.latest-madmax.outputs.result }}.exe -OutFile "$env:GITHUB_WORKSPACE\madmax\tranzact_plot_k34.exe"
 
       # Get the most recent release from bladebit
     - uses: actions/github-script@v4
