@@ -1,6 +1,6 @@
 import os
-from chia.plotters.bladebit import install_bladebit
-from chia.plotters.madmax import install_madmax
+from tranzact.plotters.bladebit import install_bladebit
+from tranzact.plotters.madmax import install_madmax
 
 
 def install_plotter(plotter, root_path):
